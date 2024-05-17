@@ -1,0 +1,524 @@
+<template>
+	<div class="slds-grid slds-wrap">
+		 <div class="slds-col slds-size_12-of-12 slds-m-around_medium">
+			 <div class="slds-tabs_card slds-m-top_large">
+		<div class="slds-page-header">
+			<div class="slds-page-header__row">
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<span class="slds-icon_container">
+			<lightning-icon icon-name="custom:custom16" alternative-text="Bank" title="Bank"></lightning-icon>
+		</span>
+						</div>
+						<div class="slds-media__body">
+							<div class="slds-page-header__name">
+								<div class="slds-page-header__name-title">
+									<h1>
+										<span>MODT</span>
+										<span class="slds-page-header__title slds-truncate" title="MODT Details">MODT Details</span>
+									</h1>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+		 </div>
+		  <div class="slds-col slds-size_12-of-12">
+			  <span class="">
+				<span class="slds-float_right slds-m-around_medium">
+					<template if:true={isTaskOwnerLogin}>
+						<lightning-button label="Create MODT" slot="actions" icon-name="utility:add" onclick={addRow}
+							class="custom-button" variant="brand" disabled={isDisabledAddRowButton}>
+						</lightning-button>
+					</template>
+				</span>
+				<span class="slds-float_left slds-m-around_medium">
+					<template if:true={FinancialAccountRec}>
+						<div class="slds-col slds-tabs_card" style="cursor: pointer;" onclick={handleFinancialAccount}>
+							<span style="color:#318CE7;font-size:larger;font-weight: bold;"><b> Financial Account Name </b> &nbsp; :
+								<u  style="color:black">{FinancialAccountRec.Name}</u></span>
+						</div>
+					</template>
+				</span>
+			</span>
+		 </div>
+		  <div class="slds-col slds-size_12-of-12">
+			  		<div class="detailsLayout">
+				<div class="slds-grid slds-wrap card_main">
+					<template if:true={FinancialAccountRec}>
+						<div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium">
+							<span>
+								<b class="amountHeading">Sanctioned Amount</b> <br>
+								<span class="" >
+									{FinancialAccountRec.Sanctioned_Amount__c}<br>
+									{SanctionedAmountInwords}
+								</span><br>
+							</span>
+						</div>
+						<div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium" style="cursor: pointer;" onclick={HandleReceivable}>
+							<span>
+								<b class="amountHeading"><u>Receivable Amount</u></b><br>
+								<span class="">
+									{FinancialAccountRec.Receivables_Amount__c}<br>
+									{ReceivableAmountInWords}
+								</span>
+								
+							</span>
+						</div>
+						<div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium">
+							<span>
+								<b class="amountHeading">Available Sanctioned Amount</b> <br>
+								<span class="">
+									{AvailableSanctionedamount}<br>
+									{AvailableSanctionedamountInWords}
+								</span>
+								
+							</span>
+						</div>
+						<div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium">
+							<span>
+                                <b class="amountHeading">Total MODT Amount</b> <br>
+								<span class="">
+									{TotalGivenAmount}<br>
+									{TotalGivenAmountInWords}
+								</span>
+							</span>
+						</div>
+						<div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium">
+							<span>
+								<b class="amountHeading">Pending MODT Amount</b> <br>
+								<span class="">
+									{TotalRemaingAmount}<br>
+									{TotalRemainingAmountInWords}
+								</span>
+							</span>
+						</div>
+					</template>
+				</div>
+		</div>
+		 </div>
+		  <div class="slds-col slds-size_12-of-12">
+			  <div class="slds-m-around_medium">`
+			<table class="slds-table slds-table_cell-buffer slds-table_bordered"
+				aria-labelledby="element-with-table-label other-element-with-table-label slds-table_bordered">
+				<thead class="">
+					<tr class="slds-line-height_reset slds-table_bordered">
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Entity Type">Entity Type</div>
+						</th>
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Mortgager">Mortgager Name</div>
+						</th>
+						<!-- <th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Document Number">Document Number</div>
+						</th> -->
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="MODT Value">MODT Value</div>
+						</th>
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Payment Mode">Postal Code</div>
+						</th>
+
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Payment Mode">Executed On</div>
+						</th>
+
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Payment Mode">Status</div>
+						</th>
+
+						<th class="slds-box slds-theme_shade slds-theme_alert-texture" scope="col">
+							<div class="slds-truncate" title="Stage">Action</div>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<template for:each={indePendentModtObjectList} for:item="obj" for:index="index">
+						<tr class={obj.cssclass} key={obj.Id}>
+
+							<th data-label="Entity Type" scope="row">
+								<lightning-combobox disabled={obj.isDisabledAllInput} data-index={obj.index}
+									data-id={obj.Id} name="enityName" variant="label-hidden" label="Status"
+									value={obj.selectedEntitype} placeholder="Select Entity Type"
+									options={obj.tempentityTpye} onchange={selectionChangeHandler} required>
+								</lightning-combobox>
+							</th>
+
+							<td data-label="Payee Name">
+								<lightning-combobox disabled={obj.isDisabledAllInput} data-index={obj.index}
+									data-id={obj.Id} name="MODTName" variant="label-hidden" label="Status"
+									value={obj.Mortgager_Id__c} placeholder="Select Entity"
+									options={obj.relatedTypeEnityMap} onchange={selectionChangeHandler} required>
+								</lightning-combobox>
+							</td>
+
+							<!-- <td data-label="MODTidName">
+								<lightning-input type="text" class="fields" variant="label-hidden" label="MODT ID"
+									name="MODTidName" value={obj.MODT_ID__c} data-id={obj.Id}
+									onchange={selectionChangeHandler} data-index={obj.index} placeholder="MODT ID"
+									disabled={obj.isDisabledAllInput} required>
+								</lightning-input>
+							</td> -->
+
+							<td data-label="MODTValue">
+								<lightning-input type="number" class="fields" variant="label-hidden" label="MODT Value"
+									name="MODTValue" value={obj.MODT_Value__c} data-id={obj.Id}
+									onchange={selectionChangeHandler} data-index={obj.index} placeholder="MODT Value"
+									disabled={obj.isDisabledAllInput} required>
+								</lightning-input>
+							</td>
+
+							<td data-label="address">
+								<template if:false={obj.isAddressEditabled}>
+									<template if:true={isClosedMosal}>
+										<!-- Modal/Popup Box LWC starts here -->
+										<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01"
+											aria-modal="true" aria-describedby="modal-content-id-1"
+											class="slds-modal slds-fade-in-open">
+											<div class="slds-modal__container">
+												<!-- Modal/Popup Box LWC header here -->
+												<header class="slds-modal__header">
+													<button
+														class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+														id={obj.index} onclick={closeAddressModal}
+														data-index={obj.index} data-id={obj.Id}>
+														<lightning-icon icon-name="utility:close"
+															alternative-text="close" variant="inverse"
+															size="small"></lightning-icon>
+														<span class="slds-assistive-text">Close</span>
+													</button>
+													<h1>PLease Enter all details below</h1>
+												</header>
+												<!-- Modal/Popup Box LWC body starts here -->
+												<div class="slds-modal__content slds-p-around_medium"
+													id="modal-content-id-1">
+													<div class="slds-form-element">
+														<label class="slds-form-element__label">Postal Code</label>
+														<div class="slds-form-element__control">
+															<div class="slds-grid slds-wrap">
+																<div class="slds-col slds-size_4-of-4">
+																	<lightning-input type="number" class="fields"
+																		variant="label-hidden" label="address"
+																		placeholder="Enter Zip code" name="address"
+																		value={obj.postalCode} data-id={obj.Id}
+																		onchange={selectionChangeHandler}
+																		data-index={obj.index}
+																		disabled={obj.isDisabledAllInput}
+																		ondblclick={showAddressInputFomratPOPUP}
+																		required maxlength="6" minlength="6"
+																		pattern="[0-9]{6}"
+																		message-when-pattern-mismatch="Postal code must be exactly 6 digits">
+																	</lightning-input>
+																</div>
+																<!-- Add labels for other inputs -->
+																<div class="slds-col slds-size_4-of-4">
+																	<label
+																		class="slds-form-element__label">Street</label>
+																	<lightning-input type="text" class=""
+																		placeholder="Enter street" value={obj.street}
+																		onchange={selectionChangeHandler} name="street"
+																		required></lightning-input>
+																</div>
+																<div class="slds-col slds-size_1-of-2">
+																	<label class="slds-form-element__label">City</label>
+																	<lightning-input type="text" class=""
+																		placeholder="Enter city" value={obj.city}
+																		onchange={selectionChangeHandler} disabled
+																		name="city" required></lightning-input>
+																</div>
+																<div class="slds-col slds-size_1-of-2">
+																	<label
+																		class="slds-form-element__label">State</label>
+																	<lightning-input type="text" class=""
+																		placeholder="Enter state" value={obj.state}
+																		onchange={selectionChangeHandler} disabled
+																		name="state" required></lightning-input>
+																</div>
+																<div class="slds-col slds-size_1-of-2">
+																	<label
+																		class="slds-form-element__label">Country</label>
+																	<lightning-input type="text" class=""
+																		placeholder="Enter country" value={obj.country}
+																		onchange={selectionChangeHandler} disabled
+																		name="country" required></lightning-input>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+												<div class="slds-modal__footer">
+													<lightning-button variant="destructive" label="Close" title="Close" onclick={handleCloseAddress} class="slds-align_absolute-center" data-index={obj.index} data-id={obj.Id}></lightning-button>
+												</div>
+											</div>
+										</section>
+										<div class="slds-backdrop slds-backdrop_open"></div>
+									</template>
+								</template>
+								<template if:true={obj.isAddressEditabled}>
+									<lightning-input type="text" class="fields" variant="label-hidden" label="address"
+										placeholder="Enter Zip code" name="address" value={obj.postalCode}
+										data-id={obj.Id} onchange={selectionChangeHandler} data-index={obj.index}
+										disabled={obj.isDisabledAllInput} ondblclick={showAddressInputFomratPOPUP}
+										required maxlength="6" minlength="6" pattern="[0-9]{6}"
+										message-when-pattern-mismatch="Postal code must be exactly 6 digits">
+									</lightning-input>
+								</template>
+							</td>
+
+							<td data-label="Executed On">
+								<lightning-input type="date" class="fields" variant="label-hidden" label="First Name"
+									name="DateOfExecution" value={obj.Date_Of_Execution__c} data-id={obj.Id}
+									data-index={obj.index} disabled={obj.isDisabledAllInput}
+									onchange={selectionChangeHandler} required>
+								</lightning-input>
+							</td>
+							<td data-label="Status">
+								<lightning-combobox disabled={obj.isStatusDisabled} data-index={obj.index}
+									data-id={obj.Id} name="status" variant="label-hidden" label="Status"
+									value={obj.Status__c} placeholder="Select" options={obj.modtStatusList}
+									onchange={selectionChangeHandler}>
+								</lightning-combobox>
+							</td>
+
+							<td data-label="action">
+								<template lwc:if={obj.Id}>
+									<lightning-button-icon icon-name='utility:attach' alternative-text='Upload Document'
+										variant='brand' title='Upload Document' data-index={obj.Id} data-id={obj.index}
+										onclick={openDocumentCOMP} disabled={obj.isDisabledAttachement}>
+									</lightning-button-icon>
+									 <template if:true={obj.isshoweditButton}>
+										<lightning-button-icon icon-name="utility:edit" alternative-text="Delete"
+											variant="brand" data-index={obj.Id} class="slds-m-left_x-small" title="Delete" data-id={obj.index}
+											onclick={handleEditAction} >
+										</lightning-button-icon>
+									</template>
+									<template if:true={obj.isshowSavebutton}>
+										<lightning-button-icon icon-name="utility:save" alternative-text="Save" variant="brand"
+											data-index={obj.Id} title="Save" class="slds-m-left_x-small" data-id={obj.index} onclick={handleSave}>
+										</lightning-button-icon>
+									</template>
+								</template>
+								<template lwc:else>
+									<lightning-button-icon icon-name='utility:attach' alternative-text='Upload Document'
+										variant='brand' title='Upload Document' data-index={obj.Id} data-id={obj.index}
+										onclick={openDocumentCOMP} disabled="true"></lightning-button-icon>
+									<template if:true={obj.isshowSavebutton}>
+											<lightning-button-icon icon-name="utility:save" alternative-text="Save" variant="brand"
+												data-index={obj.Id} title="Save" class="slds-m-left_x-small" data-id={obj.index} onclick={handleSave}>
+											</lightning-button-icon>
+									</template>
+								</template>
+								<template if:true={isTaskOwnerLogin}>
+										<lightning-button-icon icon-name="action:delete" alternative-text="Delete"
+											variant="brand" data-index={obj.Id} title="Delete" data-id={obj.index}
+											class="slds-m-left_x-small" onclick={handleDeleteAction} disabled={obj.isdeletedisable}>
+										</lightning-button-icon>
+								</template>
+							</td>
+						</tr>
+					</template>
+				</tbody>
+			</table>
+		</div>
+		 </div>
+	</div>
+	
+
+	<!-- <template if:true={isShowMODTCOMP}> -->
+	<lightning-card>
+		<!--Header-->
+	
+
+		<!-- {city} {state} {stateCode} {country} {countryCode} -->
+		<template if:true={isLoading}>
+			<lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+		</template>
+		
+		<div slot="footer">
+			<template if:false={isCalledFromParent}>
+				<div class="slds-align_absolute-center">
+					<lightning-button variant="neutral" label="Cancel" onclick={closeAction}></lightning-button>
+					&nbsp;
+					<lightning-button variant="brand" label="Submit" onclick={handleSaveAction}
+						disabled={isSubmittButtonDisabled}>
+					</lightning-button>
+				</div>
+			</template>
+		</div>
+	</lightning-card>
+	<div class="editAddressModalPopUp">
+
+	</div>
+	<!-- </template> -->
+
+	<!--Documents On MODT-->
+	<template if:false={isShowMODTCOMP}>
+		<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+			aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+					<c-lwc_-handledocuments record-id={taskId} extended-sobject-record-id={choosenDocumentHandlerId}
+						onlwclaunched={closeMODT} is-edit={isrecordLevelEdit}>
+					</c-lwc_-handledocuments>
+				</div>
+				<div class="slds-modal__footer">
+					<div class="slds-align_absolute-center">
+						<lightning-button variant='destructive' label="Close" size='large' title='Close'
+							onclick={backTomodt} class="slds-m-around_medium">
+						</lightning-button>
+						<lightning-button variant="brand" label="Save" onclick={callDocumentHandlerFinalSubmit}>
+						</lightning-button>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop-UIClass slds-backdrop slds-backdrop_open"></div>
+	</template>
+
+	<!--Receivable Records-->
+	<template if:true={showReceivableAccount}>
+		<template if:true={Receivables.length}>
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+				aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Receivables Details</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+						<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"
+							aria-label="Example table of Opportunities with vertical borders">
+							<thead>
+								<tr class="slds-line-height_reset">
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Name">Name</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Mode">Mode</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Amount">Amount</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Status">Status</div>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<template for:each={Receivables} for:item="record">
+									<tr class="slds-hint-parent" key={record.Id}>
+										<td data-label="Name">
+											<div class="slds-truncate" title="Name">
+												{record.Name}
+											</div>
+										</td>
+										<td data-label="Mode">
+											<div class="slds-truncate" title="Mode">
+												{record.Mode__c}
+											</div>
+										</td>
+										<td data-label="Amount">
+											<div class="slds-truncate" title="Amount">
+												{record.Amount__c}
+											</div>
+										</td>
+										<td data-label="Status">
+											<div class="slds-truncate" title="Status">
+												{record.Status__c}
+											</div>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</div>
+					<div class="slds-modal__footer">
+						<lightning-button variant='destructive' label="Close" size='large' title='Close'
+							onclick={handleCloseFAccount} class="slds-m-around_medium">
+						</lightning-button>
+					</div>
+				</div>
+			</section>
+			<div class="slds-backdrop-UIClass slds-backdrop slds-backdrop_open "></div>
+		</template>
+	</template>
+
+	<!--Payable Records-->
+	<template if:true={showPayableAccount}>
+		<template if:true={Payables.length}>
+			<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+				aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+				<div class="slds-modal__container">
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Payables Details</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+						<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"
+							aria-label="Example table of Opportunities with vertical borders">
+							<thead>
+								<tr class="slds-line-height_reset">
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Financial Account">Financial Account</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Financial Entity Details">Financial Entity
+											Details</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Amount">Amount</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Mode">Mode</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Status">Status</div>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<template for:each={Payables} for:item="record">
+									<tr class="slds-hint-parent" key={record.Id}>
+										<td data-label="Name">
+											<div class="slds-truncate" title="Name">
+												{record.Financial_Account__r.Name}
+											</div>
+										</td>
+										<td data-label="Mode">
+											<div class="slds-truncate" title="Mode">
+												{record.Financial_Entity_A_C_Details__r.Name}
+											</div>
+										</td>
+										<td data-label="Amount">
+											<div class="slds-truncate" title="Amount">
+												{record.Amount__c}
+											</div>
+										</td>
+										<td data-label="Mode">
+											<div class="slds-truncate" title="Mode">
+												{record.Mode__c}
+											</div>
+										</td>
+										<td data-label="Status">
+											<div class="slds-truncate" title="Status">
+												{record.Status__c}
+											</div>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</div>
+					<div class="slds-modal__footer">
+						<lightning-button variant='destructive' label="Close" size='large' title='Close'
+							onclick={handleCloseFAccount} class="slds-m-around_medium">
+						</lightning-button>
+					</div>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open"></div>
+		</template>
+	</template>
+</template>

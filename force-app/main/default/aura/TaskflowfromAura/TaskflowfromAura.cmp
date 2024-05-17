@@ -1,0 +1,22 @@
+<aura:component controller = "GetTaskStatus" implements="force:lightningQuickActionWithoutHeader,force:appHostable,lightning:actionOverride,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable" access="global" >
+	<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="TaskStatus" type="String" />
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="hasError" type="Boolean" default="false"/>
+    <aura:attribute name="actionType" type="String"/>
+    <aura:attribute name="addEmployeeList" type="String" default="addEmployeeList"/>
+    <div>
+        
+        <aura:if isTrue="{!v.actionType =='Flow'}">
+            <lightning:flow aura:id="OnOpenStatus" onstatuschange="{!c.statusChange}"/>
+        </aura:if>
+        <aura:if isTrue="{!v.actionType =='Component'}">
+            {!v.body}
+        </aura:if>
+        
+    </div>
+    <div>
+         
+    </div>
+    
+</aura:component>

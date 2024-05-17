@@ -1,0 +1,17 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+	
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="componentIndex" type="Integer"/>
+    <aura:attribute name="CompName" type="List" />
+    <aura:attribute name="Islaunched" type="boolean" />
+    <aura:attribute name="wrapperData" type="List" />
+    <aura:attribute  name="taskId" type="Id" default="00TBl000001yFIAMA2"></aura:attribute>
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="isCallingFromParent" type="boolean" default="true"/>
+    
+    <c:lwc_document_storage taskId="{!v.taskId}" aura:id="lWCComponent2"  onlwclaunched="{!c.handleLWCLaunched}" initFunctionality="{!v.initFunctionality}" onvaluechange="{!c.getValueFromLwc}" compIndex="{!v.Index}" taskRec="{!v.taskRec}" isCallingFromParent="{!v.isCallingFromParent}"></c:lwc_document_storage>
+</aura:component>

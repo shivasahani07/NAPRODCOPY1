@@ -1,0 +1,16 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+	<aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="DocHandlerObj" type="object" ></aura:attribute>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="UploadtaskId" type="Id"/>
+    
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+    <c:lwc_Handledocuments aura:id="lWCComponent3" onlwclaunched="{!c.handleLWCLaunched}" recordId="{!v.recordId}" initFunctionality="{!v.initFunctionality}" index="{!v.Index}" isEdit="{!v.IsEdit}" taskRec="{!v.taskRec}" isGrandChild="false" UploadtaskId="{!v.UploadtaskId}"></c:lwc_Handledocuments>
+</aura:component>

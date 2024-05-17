@@ -1,0 +1,329 @@
+<aura:component controller="Child_components_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}"/>
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    
+    <aura:attribute name="recordId" type="Id"/>
+    
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="show_Reviewer_checklist" type="boolean" default="false"/>
+    <aura:attribute name="IsParentTaskId" type="Boolean" default="false"/>
+    <aura:attribute name="currentTaskId" type="Id" default=""/>
+    <aura:attribute name="LoginUserRelatedGroup" type="List"/>
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    <aura:attribute name="Isclose" type="Boolean" default="false"/>
+    
+    <aura:attribute name="data" type="List" default="[]" /> 
+    <aura:attribute name="ChildTaskOwnerName" type="List" />
+    <aura:Attribute name="NextApproverList" type="List"/>
+    <aura:Attribute name="RejectApproverList" type="List"/>
+    
+    <aura:Attribute name="ReviewerList" type="List"/>
+    <aura:Attribute name="CheckList" type="List"/>
+    <aura:Attribute name="Reviewer_thread_Id" type="List"/>
+    <aura:Attribute name="task_Id" type="List"/>
+    <aura:Attribute name="CheckList_Fact" type="List"/>
+    
+    <aura:attribute name="IsTaskReviewerNameExist" type="Boolean" default="false"/>
+    <aura:attribute name="ShowCommentBox" type="Boolean" default="false"/>
+    <aura:attribute name="CurrentUserEdit" type="Boolean" />
+    <aura:Attribute name="HandleResubmittedDisable" type="Boolean" default="false"/>
+    <aura:Attribute name="AllUserList" type="List"/>
+    <aura:Attribute name="AllQueueList" type="List"/>
+    <aura:Attribute name="finalUserIds" type="list"/>
+    <aura:Attribute name="selectedTaskId" type="list"/>
+    <aura:attribute name="ReviewerType_ReviewerName" type="List" />
+    <aura:Attribute name="Opportunity_Related_task" type="List"/>
+    <aura:attribute name="currentUserName" type="String"/>
+    
+    <aura:attribute name="types" type="List" default="['None','Queue','Individual']" />  
+    <aura:attribute name="CommentValue" type="String" /> 
+    <aura:attribute name="historyCommentValue" type="String" />
+    <aura:attribute name="Isshowcomment" type="boolean" default="false"/>
+    <aura:attribute name="IsshowAddReviewer" type="boolean"/>
+    <aura:attribute name="selectedRecord" type="String" /> 
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    
+    <aura:attribute name="tkcreator" type="Boolean" default="false"/>
+    <aura:attribute name="tkreviewer" type="Boolean" default="false"/>
+    <aura:attribute name="disablesubmitforReview" type="Boolean" default="false"/>
+    
+    <aura:attribute name="IsEditable" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Approve_review" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Reject_review" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Compliance_review" type="Boolean" default="false"/>
+    <aura:attribute name="child_comp_array" type="List" />
+    <aura:attribute name="Approver_OR_Rejection_array" type="List" />
+    
+    <aura:handler name="childToParentCommunicationEvent" event="c:childToParentCommunicationEvent" action="{!c.handleChecklistEvent}" />
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+    <div class="slds-tabs_card slds-m-top_large">
+        <div class="slds-page-header">
+            <div class="slds-page-header__row">
+                <div class="slds-page-header__col-title">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <span class="slds-icon_container">
+                                <lightning:icon iconName="standard:care_request_reviewer" alternativeText="Review" title="Review" />
+                            </span>
+                        </div>
+                        <div class="slds-media__body">
+                            <div class="slds-page-header__name">
+                                <div class="slds-page-header__name-title">
+                                    <h1>
+                                        <span>Reviewer</span>
+                                        <span class="slds-page-header__title slds-truncate" title="Reviewer Details">Reviewer Details</span>
+                                    </h1>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--Login Access to Create Reviewer--> 
+    <div class="card slds-m-top_medium" style="box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2);transition: 0.5s;width:100%;justify-content: center;">  
+        <aura:if isTrue="{!OR(v.tkcreator==true,v.tkreviewer==true)}">
+            <!--span class="slds-float_right">
+                <lightning:button label="Add Reviewer" onclick="{!c.addNewRow}" iconName="utility:add" variant="brand" />
+            </span-->
+        </aura:if>
+        <br></br>
+        <br></br>
+         <!--PreDefined_Reviewers-->
+        <aura:if isTrue="{!v.data.length!=0}">
+            <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Select">Type</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Owner Name">User/Queue</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Status">Action</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.data}" var="row" indexVar="index">
+                        <tr class="slds-hint-parent">
+                            <td style="padding:5px;align-items: center;">
+                                <aura:if isTrue="{!row.disabled}"> 
+                                    <lightning:select name="{!index}" value="{!row.type}" onchange="{!c.updateOptions}" disabled="true">
+                                        <aura:iteration items="{!v.types}" var="type" >
+                                            <option value="{!type}">{!type}</option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                    <aura:set attribute="else">
+                                        <lightning:select name="{!index}" value="{!row.type}" onchange="{!c.updateOptions}">
+                                            <aura:iteration items="{!v.types}" var="type" >
+                                                <option value="{!type}">{!type}</option>
+                                            </aura:iteration>
+                                        </lightning:select>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            <td style="padding:5px;align-items: center;">
+                                <aura:if isTrue="{!row.disabled}" >
+                                    <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}" disabled="true">
+                                        <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                            <option value="{!option.id}">{!option.name}</option>
+                                        </aura:iteration>
+                                    </lightning:select>
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!AND(row.selectedUserOrQueueId!=null,row.selectedUserOrQueueId!=undefined)}" >
+                                            <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}">
+                                                <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                                    <option value="{!option.id}">{!option.name}</option>
+                                                </aura:iteration>
+                                            </lightning:select>
+                                            <aura:set attribute="else">
+                                                <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}">
+                                                    <option value=" ">--None--</option>
+                                                    <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                                        <option value="{!option.id}">{!option.name}</option>
+                                                    </aura:iteration>
+                                                </lightning:select>
+                                            </aura:set>
+                                        </aura:if> 
+                                    </aura:set>
+                                </aura:if>                  
+                            </td>
+                            <td style="padding:5px;align-items: center;">
+                                <br></br>
+                                <aura:if isTrue="{!row.disabled}">
+                                    <lightning:button label="Delete" onclick="{!c.deleteRow}" value="{!index}" variant="destructive" disabled="true"/>
+                                    <aura:set attribute="else">
+                                        <lightning:button label="Delete" onclick="{!c.deleteRow}" value="{!index}" variant="destructive"/>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+            <br></br>
+            <aura:if isTrue="{!OR(v.tkcreator==true,v.tkreviewer==true)}">
+                <aura:if isTrue="{!v.disablesubmitforReview}">
+                      <lightning:button label="Submit For Review" onclick="{!c.handleClickSave}"  class="slds-align_absolute-center slds-m-bottom_small" variant="brand" disabled="true"/>
+                    <aura:set attribute="else">
+                        <lightning:button label="Submit For Review" onclick="{!c.handleClickSave}"  class="slds-align_absolute-center slds-m-bottom_small" variant="brand" disabled="false"/>
+                    </aura:set>
+                </aura:if>
+            </aura:if>
+            <br></br>
+        </aura:if>
+    </div>
+    <br></br>
+    <!--ChildTasks-->
+    <aura:if isTrue="{!v.ChildTaskOwnerName.length!=0}"> 
+        <div class="card" style="box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2);transition: 0.5s;width:100%;justify-content: center;">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Select">Select</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Owner Name">Owner Name</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Status">Status</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Level">Level</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="No Of Times Reviewed Count">No Of Times Reviewed Count</div>
+                        </th>
+                        <th class="" scope="col">
+                            <div class="slds-truncate" title="Action">Action</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.ChildTaskOwnerName}" var="ind" >
+                        <tr class="slds-hint-parent">
+                            <td data-label="Select">
+                                <aura:if isTrue="{!ind.disableCheckbox}">
+                                    <label class="slds-checkbox">
+                                        <ui:inputCheckbox aura:id="checkContact" value="{!ind.Selected}" text="{!ind.Id}" change="{!c.selectSingleOptionRec}" disabled="true" class="contentx"/>
+                                        <span class="slds-checkbox--faux" />
+                                        <span class="slds-form-element__label"></span>
+                                    </label>
+                                    <aura:set attribute="else">
+                                        <label class="slds-checkbox">
+                                            <ui:inputCheckbox aura:id="checkContact" value="{!ind.Selected}" text="{!ind.Id}" change="{!c.selectSingleOptionRec}" />
+                                            <span class="slds-checkbox--faux" />
+                                            <span class="slds-form-element__label"></span>
+                                        </label>
+                                    </aura:set>
+                                </aura:if>
+                            </td>
+                            <td data-label="Owner Name" style="">
+                                <div class="slds-truncate" title="{!ind.Owner.Name}">{!ind.Owner.Name}</div>
+                            </td>
+                            <td data-label="Status" style="{!ind.RowBackgroundColor}">
+                                <div class="slds-truncate" title="{!ind.Status}">{!ind.Status}</div>
+                            </td>
+                            <td data-label="Current Level" style="">
+                                <div class="slds-truncate" title="{!ind.Current_Review_Level__c}"><b>{!ind.Current_Review_Level__c}</b></div>
+                            </td>
+                            <td data-label="Reviewed Count" style="">
+                                <div class="slds-truncate" title="{!ind.No_Of_Times_Reviewed_Count__c}"><b>{!ind.No_Of_Times_Reviewed_Count__c}</b></div>
+                            </td>
+                            <td data-label="Action" style="">
+                                <lightning:buttonIcon iconName="utility:comments" value="{!ind.Id}" size="small" variant="brand" class="slds-m-left_medium" onclick="{!c.handleComments}"/>
+                                <lightning:buttonIcon iconName="utility:locker_service_api_viewer" value="{!ind.Id}" size="small" variant="brand" class="slds-m-left_medium" onclick="{!c.handleChecklist}"/>
+                            </td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+            <footer class="slds-card__footer">
+                <aura:if isTrue="{!AND(v.IsEdit==true,v.selectedTaskId.length!=0)}">
+                    <!--lightning:button label="Resubmitted" onclick="{!c.handleResubmitted}"  variant="brand" class="slds-align_absolute-center slds-m-bottom_small" disabled="false"/-->
+                    <aura:set attribute="else">
+                        <aura:if isTrue="{!AND(v.IsEdit==false,v.selectedTaskId.length!=0)}">
+                            <div class="slds-align_absolute-center">
+                                <lightning:button variant="brand"    onclick="{!c.handleClickApprove}">Approve</lightning:button>
+                                <lightning:button variant="destructive"   onclick="{!c.handleClickReject}">Reject</lightning:button>
+                            </div>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            </footer>
+        </div> 
+    </aura:if>
+    <br></br>
+    <!--Comment-->
+    <aura:if isTrue="{!v.Isshowcomment}" >
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <div class="slds-modal__header">
+                    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Add Comment</h1>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning:textarea name="input1" label="Comment" required="true" value="{!v.CommentValue}"/>
+                    <aura:if isTrue="{!v.taskRec.Description}" >
+                        <lightning:textarea name="input2" label="Comment History" required="false" value="{!v.taskRec.Description}" disabled="true"/>
+                    </aura:if>
+                </div>
+                <div class="slds-modal__footer">
+                    <lightning:button label="Add" onclick="{!c.AddComment}"  variant="brand" disabled="false"/> 
+                    <lightning:button label="Cancel" onclick="{!c.cancel}"  variant="destructive" disabled="false"/> 
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </aura:if>
+    <!--Next Reviewer Approver PopUp-->
+    <aura:if isTrue="{!v.Approver_OR_Rejection_array.length!=0}">
+        <c:CMP_Reviewer_Checklist 
+                                  ReviewerList="{!v.ReviewerList}" 
+                                  checklists="{!v.CheckList}"
+                                  CheckList_Fact="{!v.CheckList_Fact}"
+                                  userList="{!v.AllUserList}" 
+                                  QueueList="{!v.AllQueueList}"
+                                  ChildTaskOwnerName="{!v.ChildTaskOwnerName}"
+                                  Reviewer_thread_Id="{!v.Reviewer_thread_Id}"  
+                                  IsEditable="{!v.IsEditable}" 
+                                  Is_Approve_review="{!v.Is_Approve_review}" 
+                                  Is_Reject_review="{!v.Is_Reject_review}"
+                                  Is_Compliance_review="{!v.Is_Compliance_review}"
+                                  task_Id="{!v.task_Id}"
+                                  taskRec="{!v.taskRec}"
+                                  child_comp_array="{!v.child_comp_array}"
+                                  LoginUserRelatedGroup="{!v.LoginUserRelatedGroup}"
+                                  Approver_OR_Rejection_array="{!v.Approver_OR_Rejection_array}"
+                                  currentUserName="{!v.currentUserName}"
+                                  Opportunity_Related_task="{!v.Opportunity_Related_task}"
+                                  IsEdit="{!v.IsEdit}"/>/>
+    </aura:if>
+     <!--Checklist PopUp-->
+    <aura:if isTrue="{!v.show_Reviewer_checklist}">
+        <c:CMP_Reviewer_Checklist 
+                                  ReviewerList="{!v.ReviewerList}" 
+                                  checklists="{!v.CheckList}"
+                                  CheckList_Fact="{!v.CheckList_Fact}"
+                                  userList="{!v.AllUserList}" 
+                                  QueueList="{!v.AllQueueList}"
+                                  ChildTaskOwnerName="{!v.ChildTaskOwnerName}"
+                                  Reviewer_thread_Id="{!v.Reviewer_thread_Id}"  
+                                  IsEditable="{!v.IsEditable}" 
+                                  Is_Approve_review="{!v.Is_Approve_review}" 
+                                  Is_Reject_review="{!v.Is_Reject_review}"
+                                  Is_Compliance_review="{!v.Is_Compliance_review}"
+                                  task_Id="{!v.task_Id}"
+                                  taskRec="{!v.taskRec}"
+                                  child_comp_array="{!v.child_comp_array}"
+                                  LoginUserRelatedGroup="{!v.LoginUserRelatedGroup}"
+                                  currentUserName="{!v.currentUserName}"
+                                  IsEdit="{!v.IsEdit}"/>
+    </aura:if>
+</aura:component>

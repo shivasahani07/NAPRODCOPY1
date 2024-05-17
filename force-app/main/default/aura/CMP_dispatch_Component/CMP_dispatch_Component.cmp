@@ -1,0 +1,20 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="componentIndex" type="Integer"/>
+    <aura:attribute name="CompName" type="List" />
+    <aura:attribute name="Islaunched" type="boolean" />
+    <aura:attribute name="wrapperData" type="List" />
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="IsEdit" type="boolean" default="true"/>
+    <aura:attribute name="IsClosed" type="boolean" default="false"/>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+    
+    <aura:attribute  name="taskId" type="Id" default=""></aura:attribute>
+    <c:dispatch_Component taskId="{!v.recordId}" aura:id="dispatchComp" onlwclaunched="{!c.handleLWCLaunched}" initFunctionality="{!v.initFunctionality}" taskRec="{!v.taskRec}"  onvaluechange="{!c.getValueFromLwc}" compIndex="{!v.Index}"></c:dispatch_Component>
+</aura:component>

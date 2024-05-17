@@ -1,0 +1,107 @@
+<!-- documentCourierDetailSearch.html -->
+<template>
+    <lightning-card title="Search Document Courier Detail">
+        <lightning-layout>
+            <lightning-layout-item size="4" padding="around-small">
+                    <lightning-combobox
+                    name="Tracking_Number"
+                    label="Tracking Number"
+                    placeholder="Choose Tracking Number"
+                    value={value}
+                    onchange={handleAwbNumberChange}
+                    options={trackingOptions}
+                >
+                </lightning-combobox>
+            </lightning-layout-item>
+        </lightning-layout>
+        
+        <template if:true={searchResults}>
+            <lightning-accordion onsectiontoggle={handleSectionToggle} allow-multiple-sections-open
+                class="slds-m-top_medium">
+                <template for:each={searchResults} for:item="categoryResult">
+                    <lightning-accordion-section key={categoryResult.category} name={categoryResult.category}
+                        active-section-name="Cheque" label={categoryResult.category}
+                        data-category={categoryResult.category} class="slds-p-around_small slds-text-heading_small">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+                            <!-- Table header -->
+                            <thead>
+                                <tr>
+                                    <template for:each={categoryResult.Headervalues} for:item="chequeHeaders">
+                                        <th key={categoryResult.Headervalues} class="" scope="col">
+                                            <div class="slds-truncate" title={chequeHeaders}>{chequeHeaders}</div>
+                                        </th>
+                                    </template>
+                                    
+                                </tr>                             
+                            </thead>
+                            <!-- Table body -->
+                            <tbody>
+                                <template for:each={categoryResult.documents} for:item="result">
+                                    <tr key={result.Id}>
+                                        <!-- <td data-label="Document ID Name" class="slds-truncate">
+                                                {result.Document_Metadata__r.Document_Id_Name__c}</td> -->
+                                        <td data-label="Document ID Value" class="slds-size_1-of-12">
+                                            <template if:true={isHideCheckBoxInput}>
+                                                {result.maskedDocumentIDValue}
+                                            </template>
+                                            <template if:false={isHideCheckBoxInput}>
+                                                {result.unmaskedDocumentIDValue}
+                                            </template>
+                                        </td>
+                                        <td data-label="Transfer" class="slds-size_1-of-12">
+                                            <template if:true={result.Transfer_To__c}>
+                                               {result.Transfer_To__r.Name}
+                                            </template>
+                                        </td>
+                                        <template if:true={result.isChequeTrue}>
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.payeeName}
+                                            </td>
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.bankAccountNumber}
+                                            </td>
+                                            <td data-label="Amount" class="slds-size_1-of-12">
+                                                {result.Amount__c}
+                                            </td>
+                                        </template>
+                                        <template  if:true={result.ismortager}>
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.mortager_name}
+                                            </td>
+
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.executed_on_date    }
+                                            </td>
+
+                                            <td data-label="Amount" class="slds-size_1-of-12">
+                                                {result.excecution_place}
+                                            </td>
+                                        </template>
+                                        <td data-label="Document ID Value" class="slds-size_1-of-12">
+                                            <lightning-input type="checkbox" value={result.Id} name={result.Name}
+                                                data-check={result.Id} data-key="singleSelectColumnCheckbox"
+                                                onchange={handleCheckboxChange} checked={result.isChecked}
+                                                disabled={isHideCheckBoxInput}>
+                                            </lightning-input>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </lightning-accordion-section>
+                </template>
+            </lightning-accordion>
+        </template>
+        <template if:false={searchResults}>
+            <div class="slds-page-header">
+                <h1>No Record Found To handed Over</h1>
+            </div>
+        </template>
+        <template if:true={showreceive_button}>
+            <div class="slds-p-around_medium">
+                <lightning-button  label="Received" onclick={updateDcuRecordS} variant="brand" class="slds-align_absolute-center slds-m-left_xx-small">
+                </lightning-button>
+            </div>
+        </template>
+    </lightning-card>
+</template>

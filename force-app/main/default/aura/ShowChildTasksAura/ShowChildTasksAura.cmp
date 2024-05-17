@@ -1,0 +1,22 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:isUrlAddressable" access="global" >
+    
+    <aura:html tag="style">
+        .slds-p-around–medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-x:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.popupCSS}" />
+    
+    
+    <c:showChildTasks onclosequickaction="{!c.handleCloseQuickAction}"></c:showChildTasks>
+</aura:component>

@@ -1,0 +1,43 @@
+.THIS .example-accordion {
+    --sds-c-accordion-color-border: white;
+        --sds-c-accordion-heading-font-size:1rem;
+        --slds-c-accordion-heading-text-color: black;
+        
+        font-style: oblique;
+        --slds-c-accordion-summary-color-background:#dadada;
+        margin-left: 10px;
+        margin-right:17px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .THIS.contentx.slds-checkbox_faux{
+        background: red;
+        /* content: "X";
+        color: red;
+        background-color: red;
+        background-image:url(http://csscheckbox.com/checkboxes/lite-x-red.png);*/
+    }
+    .THIS.slds-backdrop{
+        opacity: 0.3;
+        position: absolute; 
+        left: 0px; 
+        right: 0px; 
+        bottom: 0; 
+        top: 10px; 
+        width: 100%; 
+        height: auto; 
+        z-index: 999;
+        backdrop-filter: blur(15px);
+    }
+    
+    /* customCheckbox.css */
+    .THIS .custom-checkbox{
+        background-color:red !important;
+    }
+    
+    /* customCheckbox.css */
+    .THIS .slds-checkbox input[type="checkbox"]:disabled + label::before {
+        /* Styles for the checkbox area when checkbox is disabled */
+        background-color: red; /* Change to desired color */
+    }

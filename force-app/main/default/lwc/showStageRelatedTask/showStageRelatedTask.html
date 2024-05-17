@@ -1,0 +1,325 @@
+<template>
+        <template if:true={MetaDATA.length}>
+            <lightning-card  title="Stage & Related Task">
+                 <template if:false={showBackquote}>
+                    <lightning-button label="Launch" variant="brand" slot="actions" onclick={HandleNavigate} class="slds-p-right_small"></lightning-button>
+                 </template>
+                 <template if:true={showBackquote}>
+                    <lightning-button label="Back to Opportunity" variant="destructive" slot="actions" onclick={HandleNavigateToOpportunity} class="slds-p-right_small"></lightning-button>
+                 </template>
+                 <div class="slds-m-left_x-small">
+                    <div role="progressbar" 
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style={OverAll_Completed_Task}><!--aria-valuenow="65"-->
+                    </div>
+                 </div>
+                <lightning-tabset>
+                    <lightning-tab label={LabelALLTask} icon-name="standard:task" >
+                            <lightning-accordion  allow-multiple-sections-open active-section-name={section} > 
+                            <div  class="slds-scrollable_x horizontal-accordion" style="max-width:95%;">
+                            <template for:each={MetaDATA} for:item="rec">
+                                <div  key={rec.key} >  
+                                    <div class="slds-m-left_medium" style="width:350px;">
+                                        <span class="Progress mt-5" style="width:20rem;height:1.5rem">
+                                           <template for:each={rec.progressvalue} for:item="Pbvalues"> 
+                                              <span class="Progress-item " style={Pbvalues.progressbarstyle} key={rec.key}>{Pbvalues.percentage}</span>
+                                           </template>
+                                        </span> 
+                                    </div> 
+                                <lightning-accordion-section class="example-accordion" name={rec.key} label={rec.key} key={rec.key} >
+                                    <!--div  class="slds-grid slds-gutters slds-scrollable_x"-->
+                                        <template for:each={rec.value} for:item="mtvalues" for:index="index">
+                                                <div  key={rec.key} class={Cardclass} >
+                                                    <div  class={InsidecardClass} style={mtvalues.DynamicCardColor}>
+                                                        <div >
+                                                        <div>
+                                                                <div class="slds-grid slds-wrap">
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Subject:</b></span><br/> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <span>{mtvalues.Subject}</span><br/>   
+                                                                    </div>
+                                                                    <div class=" slds-size_1-of-3">
+                                                                        <span><b>Owner:</b></span><br/>
+                                                                    </div>
+                                                                    <div class="slds-size_2-of-3">
+                                                                        <span>{mtvalues.TaskOwner}</span><br/>  
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Created Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCreatedDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCreatedDate} year="numeric" month="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCreatedDate}>
+                                                                            <span>{mtvalues.TaskCreatedDate}</span>
+                                                                        </template>       
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Due Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showDueDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskDueDate} year="numeric" month="numeric" day="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showDueDate}>
+                                                                            <span>{mtvalues.TaskDueDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Completion Date:</b></span>  
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCompletionDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCompletionDate} year="numeric" month="numeric" day="numeric"></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCompletionDate}>
+                                                                            <span>{mtvalues.TaskCompletionDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="slds-grid slds-grid_align-end">
+                                                            <lightning-button variant="brand-outline" data-id={mtvalues.TaskId} label={mtvalues.ButtonLabel} title="Next Action" onclick={handleClickNextAction} class="DefaultBackground"></lightning-button>
+                                                        </div>  
+                                                        </div> 
+                                                    </div>    
+                                                </div>
+                                    </template>
+                                    <!--/div-->
+                                </lightning-accordion-section>  
+                                </div>
+                            </template>    
+                            </div>
+                        </lightning-accordion>  
+                    </lightning-tab>
+                    <lightning-tab label={LabelOpenTask} icon-name="standard:custom_component_task">
+                          <lightning-accordion  allow-multiple-sections-open active-section-name={section} >
+                            <div  class="slds-scrollable_x horizontal-accordion" style="max-width:95%;">
+                            <template for:each={Open_Task_with_Stage} for:item="rec">
+                                <div  key={rec.key} >    
+                                <lightning-accordion-section class="example-accordion" name={rec.key} label={rec.key} key={rec.key} >
+                                    <!--div  class="slds-grid slds-gutters slds-scrollable_x"-->
+                                        <template for:each={rec.value} for:item="mtvalues" for:index="index">
+                                                <div  key={rec.key} class={Cardclass} >
+                                                    <div  class={InsidecardClass} style={mtvalues.DynamicCardColor}>
+                                                        <div >
+                                                        <div>
+                                                                <div class="slds-grid slds-wrap">
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Subject:</b></span><br/> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <span>{mtvalues.Subject}</span><br/>   
+                                                                    </div>
+                                                                    <div class=" slds-size_1-of-3">
+                                                                        <span><b>Owner:</b></span><br/>
+                                                                    </div>
+                                                                    <div class="slds-size_2-of-3">
+                                                                        <span>{mtvalues.TaskOwner}</span><br/>  
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Created Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCreatedDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCreatedDate} year="numeric" month="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCreatedDate}>
+                                                                            <span>{mtvalues.TaskCreatedDate}</span>
+                                                                        </template>       
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Due Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showDueDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskDueDate} year="numeric" month="numeric" day="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showDueDate}>
+                                                                            <span>{mtvalues.TaskDueDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Completion Date:</b></span>  
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCompletionDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCompletionDate} year="numeric" month="numeric" day="numeric"></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCompletionDate}>
+                                                                            <span>{mtvalues.TaskCompletionDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="slds-grid slds-grid_align-end">
+                                                            <lightning-button variant="brand-outline" data-id={mtvalues.TaskId} label={mtvalues.ButtonLabel} title="Next Action" onclick={handleClickNextAction} class="DefaultBackground"></lightning-button>
+                                                        </div>  
+                                                        </div> 
+                                                    </div>    
+                                                </div>
+                                    </template>
+                                    <!--/div-->
+                                </lightning-accordion-section>  
+                                </div>
+                            </template>    
+                            </div>
+                        </lightning-accordion>  
+                    </lightning-tab>
+                    <lightning-tab label={LabelCloseTask} icon-name='standard:task2'>
+                    <lightning-accordion  allow-multiple-sections-open active-section-name={section} >
+                            <div  class="slds-scrollable_x horizontal-accordion" style="max-width:95%;">
+                            <template for:each={Closed_Task_with_Stage} for:item="rec">
+                                <div  key={rec.key} >    
+                                <lightning-accordion-section class="example-accordion" name={rec.key} label={rec.key} key={rec.key} >
+                                    <!--div  class="slds-grid slds-gutters slds-scrollable_x"-->
+                                        <template for:each={rec.value} for:item="mtvalues" for:index="index">
+                                                <div  key={rec.key} class={Cardclass} >
+                                                    <div  class={InsidecardClass} style={mtvalues.DynamicCardColor}>
+                                                        <div >
+                                                        <div>
+                                                                <div class="slds-grid slds-wrap">
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Subject:</b></span><br/> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <span>{mtvalues.Subject}</span><br/>   
+                                                                    </div>
+                                                                    <div class=" slds-size_1-of-3">
+                                                                        <span><b>Owner:</b></span><br/>
+                                                                    </div>
+                                                                    <div class="slds-size_2-of-3">
+                                                                        <span>{mtvalues.TaskOwner}</span><br/>  
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Created Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCreatedDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCreatedDate} year="numeric" month="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCreatedDate}>
+                                                                            <span>{mtvalues.TaskCreatedDate}</span>
+                                                                        </template>       
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Due Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showDueDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskDueDate} year="numeric" month="numeric" day="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showDueDate}>
+                                                                            <span>{mtvalues.TaskDueDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Completion Date:</b></span>  
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCompletionDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCompletionDate} year="numeric" month="numeric" day="numeric"></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCompletionDate}>
+                                                                            <span>{mtvalues.TaskCompletionDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="slds-grid slds-grid_align-end">
+                                                            <lightning-button variant="brand-outline" data-id={mtvalues.TaskId} label={mtvalues.ButtonLabel} title="Next Action" onclick={handleClickNextAction} class="DefaultBackground"></lightning-button>
+                                                        </div>  
+                                                        </div> 
+                                                    </div>    
+                                                </div>
+                                    </template>
+                                    <!--/div-->
+                                </lightning-accordion-section>  
+                                </div>
+                            </template>    
+                            </div>
+                        </lightning-accordion>  
+                    </lightning-tab>
+                    <lightning-tab label={LabelPendingTask}  icon-name='utility:block_visitor' >
+                            <lightning-accordion  allow-multiple-sections-open active-section-name={section} >
+                            <div  class="slds-scrollable_x horizontal-accordion" style="max-width:95%;">
+                            <template for:each={Pending_Task_with_Stage} for:item="rec">
+                                <div  key={rec.key} >    
+                                <lightning-accordion-section class="example-accordion" name={rec.key} label={rec.key} key={rec.key} >
+                                    <!--div  class="slds-grid slds-gutters slds-scrollable_x"-->
+                                        <template for:each={rec.value} for:item="mtvalues" for:index="index">
+                                                <div  key={rec.key} class={Cardclass} >
+                                                    <div  class={InsidecardClass} style={mtvalues.DynamicCardColor}>
+                                                        <div >
+                                                        <div>
+                                                                <div class="slds-grid slds-wrap">
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Subject:</b></span><br/> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <span>{mtvalues.Subject}</span><br/>   
+                                                                    </div>
+                                                                    <div class=" slds-size_1-of-3">
+                                                                        <span><b>Owner:</b></span><br/>
+                                                                    </div>
+                                                                    <div class="slds-size_2-of-3">
+                                                                        <span>{mtvalues.TaskOwner}</span><br/>  
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Created Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCreatedDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCreatedDate} year="numeric" month="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCreatedDate}>
+                                                                            <span>{mtvalues.TaskCreatedDate}</span>
+                                                                        </template>       
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Due Date:</b></span> 
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showDueDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskDueDate} year="numeric" month="numeric" day="numeric" ></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showDueDate}>
+                                                                            <span>{mtvalues.TaskDueDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                    <div class="slds-size_1-of-3">
+                                                                        <span><b>Completion Date:</b></span>  
+                                                                    </div>
+                                                                    <div class=" slds-size_2-of-3">
+                                                                        <template if:true={showCompletionDate}>
+                                                                            <span><lightning-formatted-date-time value={mtvalues.TaskCompletionDate} year="numeric" month="numeric" day="numeric"></lightning-formatted-date-time></span><br/>
+                                                                        </template>
+                                                                        <template if:false={showCompletionDate}>
+                                                                            <span>{mtvalues.TaskCompletionDate}</span>
+                                                                        </template> 
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+                                                        <div class="slds-grid slds-grid_align-end">
+                                                            <lightning-button variant="brand-outline" data-id={mtvalues.TaskId} label={mtvalues.ButtonLabel} title="Next Action" onclick={handleClickNextAction} class="DefaultBackground"></lightning-button>
+                                                        </div>  
+                                                        </div> 
+                                                    </div>    
+                                                </div>
+                                    </template>
+                                    <!--/div-->
+                                </lightning-accordion-section>  
+                                </div>
+                            </template>    
+                            </div>
+                        </lightning-accordion>  
+                    </lightning-tab>
+                </lightning-tabset>
+            </lightning-card>
+        </template>
+        
+</template>

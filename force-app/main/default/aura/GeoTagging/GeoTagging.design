@@ -1,0 +1,7 @@
+<design:component label="Geolocation Values">
+    <design:attribute name="latitude" label="Latitude" />
+    <design:attribute name="longitude" label="Longitude" />
+    <design:attribute name="Completeaddress" label="Complete Address" />
+    <design:attribute name="CompleteAddressstring" label="Complete Address Compiled" />
+
+</design:component>

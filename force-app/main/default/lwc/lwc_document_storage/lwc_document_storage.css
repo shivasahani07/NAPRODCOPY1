@@ -1,0 +1,19 @@
+.addError{
+	background-color:red;
+}
+
+/* Accordion.css */
+.slds-accordion__content {
+	/* Some visibility/opacity styling to override the default SLDS styling */
+	visibility: visible;
+	opacity: 1;
+	height: 0;
+	transition: height .5s ease-in-out;
+}
+.slds-is-open > .slds-accordion__summary {
+	margin-bottom: 0;
+  }
+.slds-is-open > .slds-accordion__content {
+	overflow: hidden;
+	height: 200px;
+}

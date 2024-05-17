@@ -1,0 +1,208 @@
+<template>
+	<div class="card">
+	<!-- Table for Sender, AWB Number, Recipient, and Recipient Address -->
+	<div class="slds-m-horizontal_xx-large">
+		<div class="slds-grid slds-gutters">
+			<div class="slds-col">
+				<h2 class="slds-text-heading_large slds-m-bottom_small"><b>Sender Details</b></h2>
+				<p><b>Name:</b> {senderName}</p>
+				<p><b>Address:</b> {senderAddress}</p>
+			</div>
+
+			<div class="slds-col">
+				<h2 class="slds-text-heading_large slds-m-bottom_small"><b>Reciever Details</b></h2>
+				<p><b>Name:</b> {reciverName}</p>
+				<p><b>Address:</b> {contactAddress}</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="slds-p-around_medium">
+		<table class="slds-table slds-table_cell-buffer slds-table_bordered">
+			<thead>
+				<tr>
+					<th scope="col">
+						<div class="slds-truncate" title="Select Recipient Address">Select Recipient Address</div>
+					</th>
+					<th scope="col">
+						<div class="slds-truncate" title="Department">Department</div>
+					</th>
+					<template if:false={isHideSelectedUser}>
+						<th scope="col">
+							<div class="slds-truncate" title="To Be Received By">To Be Received By</div>
+						</th>
+				    </template>
+					<th scope="col">
+						<div class="slds-truncate" title="Select Shipping Partner">Select Shipping Partner</div>
+					</th>
+					<th scope="col">
+						<div class="slds-truncate" title="Shipping Tracking Number"> Shipping Tracking Number</div>
+					</th>
+					<th scope="col">
+						<div class="slds-truncate" title="Comments">Comments</div>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+
+					<td data-label="Select Recipient Address" scope="row">
+						<lightning-combobox options={accoutIdNameMap} value={selectedRecipant}
+							onchange={handleRecipantChnageHandler}>
+						</lightning-combobox>
+					</td>
+					<td data-label="Department" scope="row">
+						<lightning-combobox options={tempAccountDepartmentOptions} value={selectedDepartment}
+							onchange={selectedHandleDepartment} disabled={isDisableddepartment}>
+						</lightning-combobox>
+				    </td>
+					<template if:false={isHideSelectedUser}>
+						<td data-label="To Be Received By" scope="row">
+							<lightning-combobox options={tempAccountUserOptions} value={selectedUser}
+								onchange={selectedUserChangeHandler} disabled={isDisabledSelectedUser}>
+							</lightning-combobox>
+						</td>
+					</template>
+					<td data-label="Shipping Partner" scope="row">
+						<lightning-combobox options={shippingPartnerOptions} disabled={isShippingPartnerDisabled}
+							value={selectedShippingPartner} onchange={handleShippingPartnerChange} required="true">
+						</lightning-combobox>
+					</td>
+					<td data-label="Tracking Number" scope="row">
+						<lightning-input type="text" variant="label-hidden" label="AWB Number"
+							onchange={handleTrackingNumberChange} name="amount" class="slds-m-top_medium"
+							disabled={isAWBDisabled} value={textValue} required="true">
+						</lightning-input>
+					</td>
+				<!--template if:true={showComments}-->
+					<td data-label="Comment" scope="row">
+						<lightning-button-icon alternative-text="Comment" data-label="AddComment"
+							variant="brand" class="" size='medium' 
+							icon-name="utility:comments" onclick={Handleonclick} required="true">
+						</lightning-button-icon>
+					</td>
+				<!--/template-->
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<template if:true={maskeddatalist}>
+		<lightning-accordion onsectiontoggle={handleSectionToggle} allow-multiple-sections-open
+			class="slds-m-top_medium">
+			<template for:each={maskeddatalist} for:item="categoryResult">
+				<template if:true={categoryResult.documents.length}>
+					<lightning-accordion-section key={categoryResult.category} name={categoryResult.category}
+						active-section-name="Cheque" label={categoryResult.category} data-category={categoryResult.category}
+						class="slds-p-around_small slds-text-heading_small">
+						<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+							<!-- Table header -->
+							<thead>
+								<!-- <tr class="slds-line-height_reset slds-text-heading_small"> -->
+								<tr>
+									<template for:each={categoryResult.Headervalues} for:item="chequeHeaders">
+										<th key={categoryResult.Headervalues} class="" scope="col">
+											<div class="slds-truncate" title={chequeHeaders}>{chequeHeaders}</div>
+										</th>
+									</template>
+								</tr>
+
+								<!-- </tr> -->
+							</thead>
+							<!-- Table body -->
+							<tbody>
+								<template for:each={categoryResult.documents} for:item="result">
+									<tr key={result.Id}>
+										<!-- <td data-label="Document ID Name" class="slds-truncate">
+												{result.Document_Metadata__r.Document_Id_Name__c}</td> -->
+										<td data-label="Document ID Value" class="slds-size_1-of-12">
+											<template if:true={isHideCheckBoxInput}>
+												{result.maskedDocumentIDValue}
+											</template>
+											<template if:false={isHideCheckBoxInput}>
+												{result.unmaskedDocumentIDValue}
+
+											</template>
+										</td>
+
+										<td data-label="Transfer" class="slds-size_1-of-12">
+											{result.Transfer_To__r.Name}
+										</td>
+										<template if:true={result.isChequeTrue}>
+											<td data-label="Payee Name" class="slds-size_1-of-12">
+												{result.payeeName}
+											</td>
+
+											<td data-label="Payee Name" class="slds-size_1-of-12">
+												{result.bankAccountNumber}
+											</td>
+
+											<td data-label="Amount" class="slds-size_1-of-12">
+												{result.Amount__c}
+											</td>
+										</template>
+										<template  if:true={result.ismortager}>
+											<td data-label="Payee Name" class="slds-size_1-of-12">
+												{result.mortager_name}
+											</td>
+
+											<td data-label="Payee Name" class="slds-size_1-of-12">
+												{result.executed_on_date    }
+											</td>
+
+											<td data-label="Amount" class="slds-size_1-of-12">
+												{result.excecution_place}
+											</td>
+										</template>  
+										<td data-label="Document ID Value" class="slds-size_1-of-12">
+											<lightning-input type="checkbox" value={result.Id} name={result.Name}
+												data-check={result.Id} data-key="singleSelectColumnCheckbox"
+												onchange={handleCheckboxChange} checked={result.isChecked}
+												disabled={isHideCheckBoxInput}>
+											</lightning-input>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</lightning-accordion-section>
+			    </template>
+			</template>
+		</lightning-accordion>
+	</template>
+	<template if:false={maskeddatalist}>
+		<div class="slds-page-header">
+			<h1>No Record Found To handed Over</h1>
+		</div>
+	</template>
+
+	<div class="slds-grid slds-grid_align-center slds-p-around_medium">
+		<template if:true={showButtonDispatch}>
+			<div class="slds-button-group" role="group">
+				<lightning-button label="Dispatch" onclick={updateDcuRecordS} variant="brand"
+					disabled={isDispatchButtonDisabled} class="slds-m-right_small">
+				</lightning-button>
+				<lightning-button label="Cancel" onclick={handleCancel} variant="destructive">
+				</lightning-button>
+			</div>
+		</template>
+	</div>
+  <template if:true={showComments}>
+	<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01" class="slds-modal slds-fade-in-open slds-modal_small">
+		<div class="slds-modal__container">
+				<div class="slds-modal__header">
+				    <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Add Comments</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+				    <lightning-textarea name="input2" label="Comments" value={commentvalue} onchange={HandleOnChangeComments}></lightning-textarea>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button variant="brand" label="Add" title="Primary action" onclick={AddhandleClick} class="slds-m-left_x-small"></lightning-button>
+					<lightning-button variant="destructive" label="Cancel" title="Destructive action" onclick={handleClick} class="slds-m-left_x-small"></lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+</div>
+</template>

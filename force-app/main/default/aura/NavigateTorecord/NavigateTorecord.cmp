@@ -1,0 +1,10 @@
+<aura:component implements="force:lightningQuickAction,lightning:availableForFlowActions">
+     <aura:attribute name="recordId" type="String" />
+    <!--<aura:attribute name="url" type="String"/>
+    <aura:attribute name="pageReference" type="Object"/>
+    <aura:handler name="init" value="{! this }" action="{! c.invoke }"/>
+    <lightning:navigation aura:id="navService"/>
+    <a href="{!v.url}">Link</a> -->
+
+    <aura:handler event="force:navigateToSObject" action="{!c.navigateToRecord}"/>
+</aura:component>

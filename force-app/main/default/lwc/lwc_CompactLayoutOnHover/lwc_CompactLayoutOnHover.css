@@ -1,0 +1,12 @@
+.slds-backdrop{
+	opacity: 0.3;
+  position: absolute; 
+  left: 0px; 
+  right: 0px; 
+  bottom: 0; 
+  top: 10px; 
+  width: 100%; 
+  height: auto; 
+  z-index: 999;
+  backdrop-filter: blur(15px);
+}

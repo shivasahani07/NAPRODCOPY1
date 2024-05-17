@@ -1,0 +1,20 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    
+    
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="componentIndex" type="Integer"/>
+    <aura:attribute name="CompName" type="List" />
+    <aura:attribute name="Islaunched" type="boolean" />
+    <aura:attribute name="wrapperData" type="List" />
+    <aura:attribute  name="recordId" type="Id" default=""></aura:attribute>
+    
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="UploadtaskId" type="Id" default=""/>
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    
+    <c:lwc_hocument_handedover isTaskOwnerLogin="{!v.IsEdit}" taskId="{!v.recordId}" aura:id="lWCComponent2"  onlwclaunched="{!c.handleLWCLaunched}" initFunctionality="{!v.initFunctionality}" onvaluechange="{!c.getValueFromLwc}" compIndex="{!v.Index}" taskRec="{!v.taskRec}" ></c:lwc_hocument_handedover>
+</aura:component>

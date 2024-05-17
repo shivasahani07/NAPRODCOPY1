@@ -1,0 +1,67 @@
+<aura:component controller="Child_components_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	
+    <aura:html tag="style">
+        .slds-p-around–medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-x:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+    </aura:html>
+    
+    <ltng:require styles="{!$Resource.popupCSS}" />
+    <aura:handler name="init" value="{!this}" action="{!c.InitAction}"/>
+    <aura:method  name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    
+    <aura:attribute name="picklistValues" type="String[]"/>
+    <aura:attribute name="selectedValue" type="String"/>
+    <aura:attribute name="recordId" type="string"/> 
+    <aura:attribute name="taskRec" type="SObject" />
+    
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+       <lightning:card>
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_6-of-12">
+                <lightning:select name="select" label="Status"  onchange="{!c.handleSelectedValue}" >
+                    <option value="">choose one...</option>
+                    <aura:iteration items="{!v.picklistValues}" var="item" >
+                        <option value="{!item}" text="{!item}"></option>
+                    </aura:iteration>
+                </lightning:select>
+            </div>
+            <!--div class="slds-col slds-size_6-of-12">
+                    <br></br>
+                    <div style="border-left: 1px solid rgb(221, 219, 218);  
+                                border-right: 1px solid rgb(221, 219, 218);  
+                                border-bottom: 1px solid rgb(221, 219, 218);  
+                                border-top: 1px solid rgb(221, 219, 218);height:300px;">
+                        <div class="slds-page-header" style="border-radius: 0px; border-right: 0px;border-left: 0px;border-top: 0px;  
+                                                             box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0.1);background-color:#dadada;">  
+                            &nbsp;<b>Task Details</b>  
+                        </div> 
+                        <div class="slds-grid slds-wrap slds-p-left_small">
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium slds-p-top_medium">
+                                <span><b>Subject</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4 slds-p-top_medium" >
+                                <span style="overflow-wrap: break-word;">: {!v.taskRec.Subject}</span>
+                            </div>
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Status</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4 slds-p-bottom_medium">
+                                <span>: {!v.taskRec.Status}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div-->
+            </div>
+        </lightning:card>
+</aura:component>

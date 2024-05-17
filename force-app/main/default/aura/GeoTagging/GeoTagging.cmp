@@ -1,0 +1,16 @@
+<aura:component controller="GoogleMapCallOutController" implements="lightning:availableForFlowScreens,lightning:availableForFlowActions,lightning:actionOverride,force:hasRecordId,force:appHostable,force:lightningQuickAction">
+
+    <aura:attribute name="latitude" type="Decimal" access="global"/>
+    <aura:attribute name="longitude" type="Decimal" access="global"/>
+    <aura:attribute name="Completeaddress" type="String" access="global"/>
+    <aura:attribute name="CompleteAddressstring" type="String" access="global"/>
+    <aura:attribute name="geoLocation" type="List" access="global" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <c:GetCityUsingAjax aura:id="component" />
+    <div>
+        <lightning:flow aura:id="CreateLeadFlow" onstatuschange="{!c.statusChange}"/>
+    </div>
+    
+    
+</aura:component>

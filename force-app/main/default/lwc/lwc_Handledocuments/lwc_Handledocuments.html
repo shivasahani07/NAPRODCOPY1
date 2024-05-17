@@ -1,0 +1,647 @@
+<template>
+	<div class="slds-tabs_card slds-m-top_large">
+		<div class="slds-page-header">
+			<div class="slds-page-header__row">
+				<div class="slds-page-header__col-title">
+					<div class="slds-media">
+						<div class="slds-media__figure">
+							<span class="slds-icon_container">
+			<lightning-icon icon-name="action:add_file" alternative-text="Documents" title="Documents"></lightning-icon>
+		</span>
+						</div>
+						<div class="slds-media__body">
+							<div class="slds-page-header__name">
+								<div class="slds-page-header__name-title">
+									<h1>
+										<span>Documents</span>
+										<span class="slds-page-header__title slds-truncate" title="Document Collection">Document Collection</span>
+									</h1>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="card">
+		<div class="container">
+
+			<lightning-card>
+				<lightning-button data-label="AddDocuments" variant="Brand" label="Add New Documents"
+					icon-name="utility:add_below" slot="actions" onclick={Handleonclick} disabled={disableAdddocument}>
+				</lightning-button>
+				<template lwc:if={getDocumentHandlerRecords.length}>
+					<div class="slds-scrollable_x">
+						<table
+							class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_col-bordered"
+							style="width:100%">
+							<thead>
+								<tr class="slds-line-height_reset">
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Document category">Document category</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Document Name">Document Name</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Comment">Description</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Document Id">Document Id</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Physical Document Received" style="white-space:pre-wrap;">Physical Document
+											Received</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate" title="Status">Status</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate slds-align_absolute-center" title="Action">Action
+										</div>
+									</th>
+									<th class="" scope="col">
+										<div class="slds-truncate slds-align_absolute-center" title="Action">Reviewer
+											Action</div>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<template for:each={getDocumentHandlerRecords} for:item="record">
+									<tr class={record.cssclass} key={record.Id}>
+										<td data-label="Document category">
+
+											<div class="slds-truncate">
+												{record.Document_Metadata__r.Document_Category__c}</div>
+										</td>
+										<td data-label="Document Name">
+											<div class="slds-truncate">{record.Document_Metadata__r.Document_Name__c}
+											</div>
+										</td>
+										<td data-label="Description">
+											<div class="slds-truncate" style="white-space:pre-wrap;">
+												{record.Document_Metadata__r.Description__c}
+											</div>
+										</td>
+										<td data-label="Document Id Value">
+											<div class="slds-truncate">
+												<lightning-input type="text" data-label="AddDocumentIdvalue"
+													placeholder="type Document Id here..."
+													value={record.Document_Id_Value__c} onchange={HandleChange}
+													disabled={record.isdocumentIdDisable} data-id={record.Id}>
+												</lightning-input>
+											</div>
+										</td>
+										<td data-label="Physical Document Received">
+											<div class="slds-truncate slds-align_absolute-center">
+												<lightning-input data-label="AddPhysicalDocument" type="checkbox"
+													variant="standard" name="name" label="" placeholder=""
+													checked={record.Physical_Document_Received__c}
+													onchange={HandleChange} data-id={record.Id}
+													disabled={record.isphysicaldocneed}>
+												</lightning-input>
+											</div>
+										</td>
+										<td data-label="Status">
+											<div class="" style="white-space:pre-wrap;">{record.Status__c}</div>
+										</td>
+										<td data-label="Submit For Review">
+											<!--Reviewer Buttons icon-name="standard:expense_report_entry icon-name="action:recall""-->
+											<div class="slds-align_absolute-center">
+												<!--Document Preview-->
+												<!-- <template if:true={record.isVisibleshowPreview}> -->
+												<lightning-button-icon alternative-text="Preview Documents"
+													data-label="PreviewDocuments" class="slds-m-left_x-small"
+													size='medium' icon-name="utility:document_preview" variant="brand"
+													access-key={record.Id} onclick={Handleonclick}
+													disabled={record.showPreview}>
+												</lightning-button-icon>
+												<!-- </template> -->
+												<!--Upload Document-->
+												<!-- <template if:true={record.isVisibleshowDocUpload}> -->
+												<lightning-button-icon alternative-text="Upload Documents"
+													class="slds-m-left_x-small" data-label="UploadDocumentIcon"
+													access-key={record.Id} icon-name="action:upload" size="medium"
+													variant="brand" onclick={Handleonclick}
+													disabled={record.showDocUpload}>
+												</lightning-button-icon>
+												<!-- </template> -->
+												<!--Review Document-->
+												<!-- <template if:true={record.isVisibleshowreview}> -->
+												<lightning-button-icon alternative-text="Submit For Review"
+													data-label="CreateReviewTask" class="slds-m-left_x-small"
+													size='medium' icon-name="action:share" variant="brand"
+													access-key={record.Id} disabled={record.showreview}
+													onclick={Handleonclick}>
+												</lightning-button-icon>
+												<!-- </template> -->
+												<!--Add Comment-->
+												<lightning-button-icon alternative-text="Comment"
+													data-label="AddComment" variant="brand" class="slds-m-left_x-small"
+													size='medium' access-key={record.Id} icon-name="utility:comments"
+													onclick={Handleonclick} disabled={record.showcomment}>
+												</lightning-button-icon>
+											</div>
+										</td>
+										<td>
+											<template if:true={record.isDeviationVisible}>
+												<lightning-button variant="brand" size='medium'
+													data-label="ReviewDeviation_Approve_Reject"
+													label="Reviewer&nbsp;Deviation" data-id={record.Id}
+													onclick={Handleonclick} class="slds-m-left_x-small"
+													disabled={record.deviationdisable}>
+												</lightning-button>
+											</template>
+											<template if:true={record.isReviewerVisible}>
+												<lightning-button variant="brand" size='medium'
+													data-label="ReviewerApproved" label="Approved" data-id={record.Id}
+													onclick={Handleonclick} class="slds-m-left_x-small"
+													disabled={record.reviewerdisable}>
+												</lightning-button>
+												<lightning-button variant="brand" label="Rejected" data-id={record.Id}
+													data-label="ReviewerReAssign" onclick={Handleonclick}
+													class="slds-m-left_x-small" disabled={record.reviewerdisable}>
+												</lightning-button>
+											</template>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</div>
+				</template>
+				<template lwc:else>
+					<div class="slds-align_absolute-center slds-notify slds-notify_alert slds-alert_warning"
+						role="alert" style="width:60%;">
+						<span class="slds-assistive-text">warning</span>
+						<h2 style="color:white;font-size:17px;">
+							<b>No Documents Are Added For This Process</b></h2>
+					</div>
+					<br></br>
+				</template>
+
+				<!--div slot="footer">
+				<lightning-button data-label="UpdateDocumentHandler" variant="brand" label="Save"
+				disabled={save_disable_enable} onclick={Handleonclick}>
+				</lightning-button>
+				</div-->
+			</lightning-card>
+		</div>
+	</div>
+
+
+	<!--Modal For Adding Additional Documents-->
+	<template if:true={AddDocumentHandler}>
+		<div>
+			<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-01"
+				class="slds-modal slds-fade-in-open slds-modal_small">
+				<div class="slds-modal__container">
+					<div class="slds-modal__header">
+						<h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">ADD Documents</h1>
+					</div>
+					<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+						<template if:true={getPADD.length}>
+							<table
+								class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_col-bordered"
+								aria-label="Example table of Opportunities with vertical borders">
+								<thead>
+									<th class="" scope="col" height="22" style="width:1rem">
+										<div class="slds-align_absolute-center" title="Select">Select</div>
+									</th>
+									<th class="" scope="col" height="22" style="width:1rem">
+										<div class="slds-truncate" title="Document category">Document
+											category</div>
+									</th>
+									<th class="" scope="col" height="22" style="width:1rem">
+										<div class="slds-truncate" title="Document Name">Document Name
+										</div>
+									</th>
+									<th class="" scope="col" height="22" style="width:1rem">
+										<div class="slds-truncate" title="Description">Description</div>
+									</th>
+								</thead>
+								<tbody>
+									<template for:each={getPADD} for:item="record">
+										<tr class="slds-hint-parent" key={record.Id}>
+											<td data-label="Document category">
+												<div class="slds-align_absolute-center">
+													<lightning-input data-label="checkboxSelection" type="checkbox"
+														variant="standard" name="name" data-id={record.Id}
+														onchange={HandleChange}></lightning-input>
+												</div>
+											</td>
+											<td data-label="Document category">
+												<div class="">
+													{record.Document_Metadata__r.Document_Category__c}</div>
+											</td>
+											<td data-label="Document Name">
+												<div class="">
+													{record.Document_Metadata__r.Document_Name__c}</div>
+											</td>
+											<td data-label="Description">
+												<div class="" style="white-space:pre-wrap;">
+													{record.Document_Metadata__r.Description__c}</div>
+											</td>
+										</tr>
+									</template>
+								</tbody>
+							</table>
+						</template>
+						<template if:false={getPADD.length}>
+							<div class="slds-notify slds-notify_alert slds-alert_warning" role="alert">
+								<span class="slds-assistive-text">warning</span>
+								<h2 style="color:white;font-size:17px;">
+									<b>No More Documents Applicable For This Process</b></h2>
+							</div>
+						</template>
+					</div>
+					<div class="slds-modal__footer">
+						<lightning-button class="slds-p-right_x-small" data-label="CancelAddDocuments"
+							variant="destructive" label="Cancel and close" onclick={Handleonclick}>
+						</lightning-button>
+						<lightning-button data-label="AddToDocumentsHandler" variant="brand" label="Save"
+							disabled={handledisableAddDocument} onclick={Handleonclick}></lightning-button>
+					</div>
+				</div>
+			</section>
+			<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+		</div>
+	</template>
+
+	<!--Modal For Adding Comments-->
+	<template if:true={addComments}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-02"
+			class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Add Comments</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+					<lightning-textarea label="Comment" data-label="inputcomment" value={comments}
+						onchange={HandleChange}>
+					</lightning-textarea>
+
+					<template if:true={commentHistory}>
+						<lightning-textarea label="Comment History" value={commentHistory} disabled="true">
+						</lightning-textarea>
+					</template>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="AssignComment" class="slds-p-right_x-small" label="Add"
+						onclick={Handleonclick}></lightning-button>
+					<lightning-button variant="destructive" data-label="CancelAssignComment" label="Cancel"
+						onclick={Handleonclick}></lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Uploading Documents-->
+	<template if:true={UploadDocument}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-03"
+			class="slds-modal slds-fade-in-open slds-modal_small">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate">Upload Document For {DocumentUploadOn_DHrecord.Document_Metadata__r.Document_Name__c}</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+
+					<div class="slds-grid slds-gutters">
+						<div class="slds-col">
+							<span>
+								<span class="slds-notify slds-notify_alert" role="alert">File Size Less Than 3MB Upload File</span>
+									<lightning-input data-label="UploadDocument" type="file"
+										accept=".xlsx, .xls, .csv, .png, .doc, .docx, .pdf" label="" onchange={openfileUpload}>
+									</lightning-input>
+									<template if:true={fileName}>
+										<lightning-pill label={fileName} onremove={handleRemove}>
+											<lightning-icon icon-name="doctype:unknown" alternative-text="Account"></lightning-icon>
+										</lightning-pill>
+									</template>
+							</span>
+						</div>
+						<div class="slds-col">
+							<span>
+								<span class="slds-notify slds-notify_alert" role="alert">File Size More Than or Equals 3MB Provide Sharepoint URL</span>
+								<lightning-textarea name="input3" data-label="UploadSharepointlink" label="" placeholder="type Sharepoint URL here..." onchange={HandleChange} value={sharepointurlLink}></lightning-textarea>
+						  </span>
+						</div>
+					</div>
+					<div class="slds-grid slds-gutters">
+						<div class="slds-col">
+							<span>
+								<br></br>
+								  <template if:true={DocumentUploadOn_DHrecord}>
+									  <div class="slds-grid slds-wrap">
+										  <template if:true={DocumentUploadOn_DHrecord.isshowInfo}>
+											  <lightning-helptext content="You Can't add  Alternative Document This Document is Mandatory"></lightning-helptext>
+										   </template>
+										  &nbsp;&nbsp;&nbsp;<lightning-input type="checkbox" data-label="AlternateDocumentUpload" 
+												label="Alternative Document" name="input1" onchange={HandleChange} 
+												   data-id={DocumentUploadOn_DHrecord.Id} checked={DocumentUploadOn_DHrecord.Is_Alternate_Document_Uploded__c}
+												   disabled={DocumentUploadOn_DHrecord.isdisable_Alternatedocument}></lightning-input>
+									  </div>
+								  </template>
+							</span>
+						</div>
+					</div>
+
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="UploadDocument" label="Upload" class="slds-p-right_x-small"
+						onclick={Handleonclick} variant="brand" disabled={fileuploaddisable}>
+					</lightning-button>
+					<lightning-button data-label="CancelUpload" label="Cancel" onclick={Handleonclick}
+						variant="destructive">
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Showing Multiple Documents For Preview-->
+	<template if:true={DocumentList.length}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-04"
+			class="slds-modal slds-fade-in-open slds-modal_small">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-04" class="slds-modal__title slds-hyphenate">Preview Uploaded Document</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Title">File Name</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Title">Uploded By</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Title">Uploded Date/Time</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="View">View</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<template for:each={DocumentList} for:item="record">
+								<tr class="slds-hint-parent" key={record.values}>
+									<td data-label="Title">
+										<div class="slds-truncate" title="File Name">{record.key}</div>
+									</td>
+									<td data-label="Title">
+										<div class="slds-truncate" title="Uploded By">{record.Uploaded_By__c}</div>
+									</td>
+									<td data-label="Title">
+										<div class="slds-truncate" title="Uploded Date/Time">
+											<lightning-formatted-date-time value={record.UploadedDateTime}
+												year="numeric" month="numeric" day="numeric" hour="2-digit"
+												minute="2-digit">
+											</lightning-formatted-date-time>
+										</div>
+									</td>
+									<td data-label="view">
+										<div class="slds-truncate" title="View" >
+											<lightning-button-icon class="slds-m-right_x-small" size='medium'
+												icon-name="action:preview" variant="brand" access-key={record.values}
+												onclick={HandlePreview} data-dmssystem={record.DMS_System__c}>
+											</lightning-button-icon>
+										</div>
+									</td>
+								</tr>
+							</template>
+						</tbody>
+					</table>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="CancelshowDocuments" label="Close" variant="destructive"
+						onclick={Handleonclick}>
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Creating Reviewer-->
+	<template if:true={showReviewRecord}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-05"
+			class="slds-modal slds-fade-in-open slds-modal_small">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-05" class="slds-modal__title slds-hyphenate">Review Document</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-5">
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Category">Document Category</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Name">Document Name</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Reviewer Name">Reviewer Name</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="slds-hint-parent">
+								<td data-label="Document Category">
+									<div class="slds-truncate" title="Document Category">
+										{Reviewrecord.Document_Metadata__r.Document_Category__c}</div>
+								</td>
+								<td data-label="Document Name">
+									<div class="slds-truncate" title="Document Name">
+										{Reviewrecord.Document_Metadata__r.Document_Name__c}</div>
+								</td>
+								<td data-label="Reviewer Name">
+									<div class="slds-truncate" title="Reviewer Name">
+										{Reviewrecord.Process_Attribute_Dcoument_Detail__r.Reviewer_Name__c}
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="CreateReview" class="slds-p-right_x-small" label="Submit For Review"
+						variant="brand" onclick={Handleonclick}>
+					</lightning-button>
+					<lightning-button data-label="CancelReview" label="Close" onclick={Handleonclick}
+						variant="destructive">
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Showing Error Message-->
+	<template if:true={contentmessage}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-06"
+			class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-06" class="slds-modal__title slds-hyphenate">Error ⚠️</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-6">
+					<div class="slds-notify slds-notify_alert slds-alert_error" role="alert">
+						<span class="slds-assistive-text">error</span>
+						<span class="slds-icon_container slds-icon-utility-error slds-m-right_x-small" title="Description of icon when needed">
+						    <svg class="slds-icon slds-icon_x-small" aria-hidden="true"></svg>
+					   </span>
+						<h2>{contentmessage}</h2>
+					</div>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="CloseErrorMessage" variant="brand" label="OK" onclick={Handleonclick}>
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Showing Deviation Approval-->
+	<template if:true={DeviationApprovalRecords.length}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-07"
+			class="slds-modal slds-fade-in-open slds-modal_medium">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-07" class="slds-modal__title slds-hyphenate">Alert ⚠️</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-7">
+					<div class="slds-notify slds-notify_alert slds-alert_offline" role="alert">
+						<span class="slds-assistive-text">offline</span>
+						<span class="slds-icon_container slds-icon-utility-offline slds-m-right_x-small" title="Description of icon when needed">
+							  <svg class="slds-icon slds-icon_x-small" aria-hidden="true"></svg>
+						 </span>
+						<h2>For The Below Mentioned Documents Submited For Deviation</h2>
+					</div>
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Category">Document Category</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Name">Document Name</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Name">Deviation Approver</div>
+								</th>
+								<th class="" scope="col">
+									<div class="slds-truncate" title="Document Name">Error</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<template for:each={DeviationApprovalRecords} for:item="record">
+								<tr class="slds-hint-parent" key={record.Id}>
+									<td data-label="Document Category">
+										<div class="slds-truncate" title="Document Category">
+											{record.Document_Metadata__r.Document_Category__c}</div>
+									</td>
+									<td data-label="Document Name">
+										<div class="slds-truncate" title="Document Name">
+											{record.Document_Metadata__r.Document_Name__c}</div>
+									</td>
+									<td data-label="Approver Name">
+										<div class="slds-truncate" title="Document Name">
+											{record.Process_Attribute_Dcoument_Detail__r.Deviation_Approver__c}</div>
+									</td>
+									<td data-label="Approver Name">
+										<div class="slds-truncate" title="Document Name">
+											{record.ErrorMessage}</div>
+									</td>
+								</tr>
+							</template>
+						</tbody>
+					</table>
+				</div>
+				<div class="slds-modal__footer">
+					<lightning-button data-label="createDeviation_UpsertDH" class="slds-p-right_x-small"
+						label="Submit for Devaition Approval" onclick={Handleonclick} disabled={disabledeviation}
+						variant="brand">
+					</lightning-button>
+					<lightning-button data-label="cancelDeviation_UpsertDH" variant="destructive" label="Cancel"
+						onclick={Handleonclick}>
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+
+	<!--Modal For Deviation Approval Or Reject-->
+	<template if:true={ReviewDeviation}>
+		<section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-08"
+			class="slds-modal slds-fade-in-open slds-modal_small">
+			<div class="slds-modal__container">
+				<div class="slds-modal__header">
+					<h1 id="modal-heading-08" class="slds-modal__title slds-hyphenate">Review Deviation</h1>
+				</div>
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-8">
+					<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"
+						style="width:100%;">
+						<thead>
+							<tr class="slds-line-height_reset">
+								<th style="width:33%;">
+									Change Task
+								</th>
+								<th style="width:33%;">
+									Update SLA
+								</th>
+								<th style="width:33%;">
+									Exempted
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="slds-hint-parent">
+								<td>
+									<lightning-combobox data-label="deviationTask" name="" label=""
+										placeholder="Select Task" options={options} onchange={HandleChange}
+										disabled={tkdisable}>
+									</lightning-combobox>
+								</td>
+								<td>
+									<span class="">
+                                      <lightning-input type="date" data-label="UpdateSLADate"  onchange={HandleChange} disabled={sladisable} min={today}></lightning-input>
+									</span>
+								</td>
+								<td>
+									<span class=" slds-m-top_medium slds-align_absolute-center">
+                                       <lightning-input type="checkbox"  data-label="Exempted" onchange={HandleChange} disabled={Exempteddisable}></lightning-input>
+									</span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="slds-modal__footer footerbelow">
+					<lightning-button data-label="deviationApproved" icon-name="action:approval" variant="brand"
+						label="Approve" title="Approve Deviation" onclick={Handleonclick} class="slds-m-left_x-small"
+						disabled={ApproveDisable}>
+					</lightning-button>
+					<lightning-button data-label="deviationRejected" icon-name="action:reject" variant="destructive"
+						label="Reject" title="Reject Deviation" onclick={Handleonclick} class="slds-m-left_x-small"
+						disabled={RejectDisable}>
+					</lightning-button>
+					<lightning-button data-label="Canceldeviation" variant="destructive" label="Cancel"
+						title="Cancel Deviation" onclick={Handleonclick} class="slds-m-left_x-small">
+					</lightning-button>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+	</template>
+</template>

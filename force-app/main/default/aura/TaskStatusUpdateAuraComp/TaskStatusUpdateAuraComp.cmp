@@ -1,0 +1,126 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader,lightning:isUrlAddressable" access="global" controller="TaskStatusUpdateHelper">
+    
+       <aura:html tag="style">
+        .slds-p-around–medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+        overflow-x:hidden !important;
+        height:unset !important;
+        max-height:unset !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+    </aura:html>
+    
+    <ltng:require styles="{!$Resource.popupCSS}" />
+    
+    <aura:attribute name="picklistValues" type="String[]"/>
+    <aura:attribute name="selectedValue" type="String"/>
+    <aura:attribute name="mapPicklistValues" type="Map"/>
+    <aura:handler name="init" value="{!this}" action="{!c.fetchPicklistValues}"/>
+    
+    <aura:attribute name="recordId" type="string"/> 
+    <aura:attribute name="TaskObject" type="SObject" />
+    <aura:attribute name="UserRec" type="SObject" />
+    <aura:attribute name="EnableButton" type="boolean" default="false"/>
+    <aura:attribute name="ShowReviewerCmp" type="boolean" default="true"/>
+    <aura:attribute name="ModalPopUp" type="Boolean" default="false"/>
+    <aura:attribute name="ShowCommentBox" type="Boolean" default="false"/>
+    <aura:attribute name="CommentValue" type="String" />
+    <aura:attribute name="TaskReviewerType" type="String" />
+    <!--For Reviewer Component-->
+    <aura:attribute name="SelectedWhatId" type="String" />
+    <aura:attribute name="SelectedReviewerId" type="String" />
+    <aura:attribute name="ReviewerList" type="List" />
+    
+    <aura:attribute name="CurrentUserEdit" type="Boolean" />
+    <aura:attribute name="NavigateToOpportunity" type="Boolean" default="false"/>
+    
+    <aura:attribute name="activeSections" type="List" default="['A','B','C']" />
+    
+    <div class="modal-header slds-modal__header slds-size_1-of-1" style="background-color:#65DFF6;">
+        <h4 class="title slds-text-heading--medium" style="font-size:25px;color:white;">Task Management</h4>
+    </div>
+    <lightning:card>
+        <div class="slds-grid slds-wrap">
+            <div class="slds-col slds-size_6-of-12">
+                 <lightning:accordion allowMultipleSectionsOpen="true" activeSectionName="{!v.activeSections}">
+                <lightning:accordionSection name="B" label="Additional Information" class="example-accordion">
+                        <lightning:select name="select" label="Status"  onchange="{!c.handleSelectedValue}" >
+                            <option value="">choose one...</option>
+                            <aura:iteration items="{!v.picklistValues}" var="item" >
+                                <option value="{!item}" text="{!item}"></option>
+                            </aura:iteration>
+                        </lightning:select>
+                    <br/>
+                    <div slot="footer" class="slds-align_absolute-center slds-m-top_x-small footer-container" >
+                        <aura:if isTrue="{!v.SelectedReviewerId!=null}">
+                            <lightning:button onclick="{!c.handleClickSave}" variant="neutral" class="footer-button" label="Submit For Reviewer"></lightning:button>
+                        </aura:if>
+                        <aura:if isTrue="{!v.SelectedReviewerId==null}">
+                            <lightning:button variant="brand" onclick="{!c.updateTask}"  label="Update Status"  class="slds-m-left_x-small"></lightning:button>
+                        </aura:if>
+                    </div>
+                </lightning:accordionSection>
+                </lightning:accordion>
+            </div>
+            <div class="slds-col slds-size_6-of-12">
+                    <br></br>
+                    <div style="border-left: 1px solid rgb(221, 219, 218);  
+                                border-right: 1px solid rgb(221, 219, 218);  
+                                border-bottom: 1px solid rgb(221, 219, 218);  
+                                border-top: 1px solid rgb(221, 219, 218);height:300px;">
+                        <div class="slds-page-header" style="border-radius: 0px; border-right: 0px;border-left: 0px;border-top: 0px;  
+                                                             box-shadow: 0 0px 0px 0 rgba(0, 0, 0, 0.1);background-color:#dadada;">  
+                            &nbsp;<b>Task Details</b>  
+                        </div> 
+                        <div class="slds-grid slds-wrap slds-p-left_small">
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium slds-p-top_medium">
+                                <span><b>Subject</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4 slds-p-top_medium" >
+                                <span style="overflow-wrap: break-word;">: {!v.TaskObject.Subject}</span>
+                            </div>
+                            
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Due Date</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4">
+                                <span>: {!v.TaskObject.ActivityDate}</span>
+                            </div>
+                            <br></br>
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Submitted By</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4">
+                                <span>: {!v.UserRec.Name}</span>
+                            </div>
+                            <br></br>
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Reviewed By</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4">
+                                <span>: {!v.TaskObject.UserId__r.Name}</span>
+                            </div>
+                            <br></br>
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Status</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4 slds-p-bottom_medium">
+                                <span>: {!v.TaskObject.Status}</span>
+                            </div>
+                            <br></br>
+                            <div class="slds-size_1-of-4 slds-p-bottom_medium">
+                                <span><b>Comments</b></span>
+                            </div>
+                            <div class="slds-size_3-of-4">
+                                <span>: {!v.TaskObject.Description}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </lightning:card>
+</aura:component>

@@ -1,0 +1,261 @@
+<apex:page renderAs="pdf" applyHtmlTag="false" showHeader="false" title="Quotation PDF" standardStylesheets="false" standardController="Financial_Account__c" extensions="WelcomeLetterController"
+           
+           applyBodyTag="false" showQuickActionVfHeader="false">
+    
+    <html>
+        
+        <head>
+            
+            <style>
+                
+                @page {
+                
+                size: A4;
+                margin-top:2.1cm;
+                margin-bottom:2.1cm;
+                margin-left:0cm;
+                margin-right:0cm;
+                @top-center {
+                
+                content: element(header);
+                
+                }
+                
+                @bottom-left {
+                
+                content: element(footer);
+                
+                }
+                
+                }
+                
+                div.header {
+                
+                display: block;
+                
+                position: running(header);
+                }
+                
+                div.footer {
+                
+                
+                display: block;
+                
+                position: running(footer);
+                
+                }
+                
+                .pagenumber:before {
+                
+                content: counter(page);
+                
+                }
+                
+                .pagecount:before {
+                
+                content: counter(pages);
+                
+                }
+                
+                body {
+                background:White;
+                color:Black;
+                }
+                
+                th {
+                
+                min-height: 15px;
+                border: 1px solid white;
+                max-height: auto;
+                
+                }
+                
+                td {
+                min-height: 15px;
+                border: 1px solid white;
+                max-height: auto;
+                
+                }
+                
+                h1, h2, h3, h4{margin:0; padding:0;}
+                
+                p{margin:4px; padding:0;}
+                
+            </style>
+            
+        </head>
+        
+        <body>
+            
+            
+            
+            <div class="header" style=" background:White ! important;text-align:center;margin-bottom:0px ! important;">
+                
+                <br/>
+                
+                <span style="text-align:center;"><img src="{!$Resource.NorthernArcWhiteLogo}"  style="height:60px;"  align="center"/></span>
+                
+                <br/>
+                
+            </div>
+            
+            <div class="footer" style=" background:White ! important;">
+                
+                <div style="border-bottom:5px #4fc5e0 solid;">
+                    
+                    <table cellspacing="0" cellpadding="0" border="0" style="width: 100%; border-collapse: collapse; border-color: #4fc5e0;border: 1px solid black ! important; text-align:left; border-bottom:5px #4fc5e0 solid;">
+                        
+                        <tr style="font-size:16px;">
+                            
+                            <td style=" font-size:12px; text-align:center; ">
+                                
+                                <div style="position:relative; border-top:1px #22a2db solid; padding-top:20px;">
+                                    
+                                    <p>
+                                        
+                                        <strong><a target="_blank" style="color:black;" rel="noopener noreferrer">10th Floor,IIT M Reaserch Park,1,Kanagam Village, Taramani, Chennai - 600113</a></strong>
+                                        
+                                    </p>
+                                    
+                                    <p>
+                                        
+                                        <a target="_blank" style="color:black;" rel="noopener noreferrer">@2021 NorthernArc. All rights reserved.</a>
+                                        
+                                    </p>
+                                    
+                                    <br/>
+                                    
+                                </div>
+                                
+                            </td>
+                            
+                        </tr>
+                        
+                    </table>
+                    
+                </div>
+                
+            </div>
+            
+            <!--div style="margin-left:18px;margin-top:25px ! important;">
+                <table id="theGrid" >
+                    <tbody>
+                        <tr >
+                            <td style="width:100%"><span id="theFirst" style="font-size:45px;color:#4fc5e0">Welcome Letter</span></td>
+                            <td style=""><span id="theSecond">Date:27/02/2023</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <br/>
+            <br/>
+            <div style="margin-left:20px">
+                <p>
+                    Reference No./Application No: {!fa_Record.LOS_Application_ID__c}
+                </p>
+                <br/>
+                <p >
+                    {!contact_details.Name},{!contact_details.MailingStreet},
+                </p>
+                <p>
+                    {!contact_details.MailingCity},{!contact_details.MailingState},{!contact_details.MailingPostalCode}
+                </p>
+            </div>
+            
+            <div style="margin-top:50px;margin-left:20px;">
+                <p>
+                    Dear Sir/Madam,
+                </p>
+                <br/>
+                <p>
+                    Greetings from Northern Arc Capital! 
+                </p>
+            </div>
+            <br/>
+            <div style="margin-left:23px">
+                <p>
+                    We are pleased to inform you that your Loan sanctioned by Northern Arc Capital Limited (“Northern Arc”) vide sanction letter dated <apex:outputText value="{0, date, MMMM d','  yyyy}"><apex:param value="{!fa_Record.Sanction_Date__c}" /></apex:outputText>  amounting to INR {!fa_Record.Sanctioned_Amount__c}/- has been successfully disbursed to your bank account. Your Loan Account Number is {!fa_Record.Name}
+                    
+                </p><br/>
+                <p>
+                    The Loan is repayable in {!fa_Record.Tenuer__c} equal monthly instalments {!fa_Record.EMI_Amount__c}/-. An EMI of INR {!fa_Record.EMI_Amount__c}/- is payable per month. Your first EMI payment is due on<apex:outputText value="{0, date, MMMM d','  yyyy}"><apex:param value="{!installment_date}" /></apex:outputText>.  A detailed repayment schedule containing the exact due dates and amounts payable is attached herewith.
+                </p><br/>
+                <p>
+                    Northern Arc shall present the cheque/NACH/e-NACH provided by you for payment of EMI on the 5th day of each month. Please ensure that your bank account is adequately funded. Bounce or delay in payment could result in levy of additional charges or penal interest and could adversely impact your credit score. 
+                </p> <br/> 
+                <p>
+                    For any kind of assistance from the customer support of Northern Arc please feel free to drop a mail to <a href="https://www.northernarc.com/reach-us">customersupport@northernarc.com</a>.  
+                </p><br/>
+                <p>
+                    A detailed grievance redressal mechanism is available at <a href="https://www.northernarc.com/grievance-redressal-mechanism">https://www.northernarc.com/grievance-redressal-mechanism</a>.
+                </p>
+                <br/>
+                <p>
+                    We thank you for choosing Northern Arc. 
+                </p>
+                <br/>
+                <p>
+                    For Northern Arc Capital Limited 
+                </p>
+            </div>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
+            <div>
+                <span style="font-weight: bold;margin-left:20px">Disclaimer :</span><span> This is a system Generated Welcome letter, dose not require any signature.</span>
+            </div>
+            <div style="page-break-after: always;">
+            </div>
+            
+            <!--Repayment Generate PDF -->
+            <table style="-fs-table-paginate: paginate;border-collapse: collapse;border-spacing: 0px;border-color : black;text-align:center;margin-top:10px;margin-left:50px;border: 1px solid black ! important;">
+                <thead style="border: 1px solid black ! important;">
+                    <tr >
+                        <th style="border: 1px solid black ! important;"> #
+                        </th>
+                        <th style="border: 1px solid black ! important;">
+                            Installment Date
+                        </th>
+                        <th style="border: 1px solid black ! important;">
+                            Installment Amount
+                        </th>
+                        <th style="border: 1px solid black ! important;">
+                            Interest
+                        </th>
+                        <th style="border: 1px solid black ! important;">
+                            Principal
+                        </th>
+                        <th style="border: 1px solid black ! important;">
+                            Principal Oustanding
+                        </th>
+                    </tr>
+                </thead>
+                <tbody style="-fs-table-paginate: paginate;border-collapse: collapse;border: 1px solid black ! important;">
+                    
+                    <apex:repeat value="{!receivableList}" var="receivable">
+                        <tr style="border: 1px solid black ! important;">
+                            <td style="border: 1px solid black ! important;">{!receivable.Series__c}</td>
+                            <td style="border: 1px solid black ! important;"><apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                                <apex:param value="{!receivable.Receivable_Date__c}" />
+                                </apex:outputText></td>
+                            <td style="border: 1px solid black ! important;">{!receivable.Amount__c}</td>
+                            <td style="border: 1px solid black ! important;">{!receivable.Intrest_Amount__c}</td>
+                            <td style="border: 1px solid black ! important;">{!receivable.Principal_Amount__c}</td>
+                            <td style="border: 1px solid black ! important;">{!receivable.Principal_Outstanding__c}</td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+                
+            </table>
+            
+            
+        </body>
+        
+    </html>
+    
+</apex:page>

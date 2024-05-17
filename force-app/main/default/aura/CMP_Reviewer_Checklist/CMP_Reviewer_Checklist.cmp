@@ -1,0 +1,252 @@
+<aura:component controller="Child_components_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}"/>
+    <aura:Attribute name="checklists" type="List"/>
+    <aura:Attribute name="ReviewerList" type="List"/>
+    <aura:Attribute name="Reviewer_thread_Id" type="List"/>
+    <aura:Attribute name="task_Id" type="List"/>
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:Attribute name="Checklist_Header" type="List"/>
+    <aura:Attribute name="userList" type="List"/>
+    <aura:Attribute name="QueueList" type="List"/>
+    <aura:attribute name="ChildTaskOwnerName" type="List" />
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    
+    <aura:Attribute name="Selected_task_checklist" type="List"/>
+    <aura:Attribute name="CheckList_Fact" type="List"/>
+    <aura:attribute name="child_comp_array" type="List" />
+    <aura:attribute name="Approver_OR_Rejection_array" type="List" />
+    <aura:attribute name="types" type="List" default="['None','Queue','Individual']" />
+    
+    <aura:attribute name="index_based_checklist" type="List" />
+    <aura:attribute name="checklist_index" type="List" />
+    <aura:Attribute name="Opportunity_Related_task" type="List"/>
+    <aura:attribute name="current_index_value" type="Integer" />
+    
+    <aura:attribute name="LoginUserRelatedGroup" type="List"/>
+    
+    <aura:attribute name="options" type="List" default="[]"></aura:attribute>
+    
+    <aura:attribute name="IsEditable" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Approve_review" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Reject_review" type="Boolean" default="false"/>
+    <aura:attribute name="Is_Compliance_review" type="Boolean" default="false"/>
+    <aura:attribute name="disablesubmitforReview" type="Boolean" default="false"/>
+    <aura:attribute name="Isshowcomment" type="boolean" default="false"/>
+    <aura:attribute name="disableaddcomment" type="Boolean" default="false"/>
+    <aura:attribute name="checklisthistoryCommentValue" type="String" default=""/>
+    <aura:attribute name="CommentValue" type="String" default=""/>
+    <aura:attribute name="Selected_Checklist_Name" type="String" default=""/>
+    <aura:attribute name="currentUserName" type="String"/>
+    <aura:attribute name="current_checklistindex_value" type="Integer" />
+    
+
+    <aura:registerEvent name="childToParentCommunicationEvent" type="c:childToParentCommunicationEvent"/>
+
+    <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="modal-heading-02" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container"> 
+            <div class="slds-modal__header">
+                <h1 id="modal-heading-02" class="slds-modal__title slds-hyphenate">Next Approvers</h1>
+            </div>
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                <aura:if isTrue="{!v.Isshowcomment==false}">
+                    <div class="card slds-scrollable" style="box-shadow: 0 3px 6px 0 rgba(0,0,0,0.2);transition: 0.5s;width:100%;justify-content: center;">
+                        <aura:if isTrue="{!v.index_based_checklist.length!=0}"> 
+                            <aura:iteration items="{!v.index_based_checklist}" var="checklist_item">
+                                <!--Checklist_Table-->
+                                <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" aria-label="Example table of Opportunities with vertical borders">
+                                    <thead>
+                                        <tr class="slds-line-height_reset">
+                                            <th class="" scope="col">
+                                                <div class="slds-truncate" title="Checklist Name">Checklist Name</div>
+                                            </th>
+                                            <aura:iteration items="{!checklist_item.checklist_Header}" var="item">
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="{!item}">{!item}</div>
+                                                </th>
+                                            </aura:iteration>
+                                            <th class="" scope="col">
+                                                <div class="slds-truncate" title="Comments">Comments</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!checklist_item.v_checklists}" var="item" indexVar="item_index">
+                                            <tr class="slds-hint-parent">
+                                                <td data-label="Checklist Name">
+                                                    <div class="slds-truncate" title="{!item.checklistName}" style="white-space:pre-wrap;">{!item.checklistName}</div>
+                                                </td>
+                                                <aura:iteration items="{!item.checklist_reviewer_array}" var="r_item" >
+                                                    <td>
+                                                        <aura:if isTrue="{!r_item.isAccessible}">
+                                                            <label class="slds-checkbox">
+                                                                <aura:if isTrue="{!r_item.isEditAllowed}">
+                                                                    <ui:inputCheckbox aura:id="checkContact" value="{!r_item.Selected}" text="{!r_item.checklistfactId}" change="{!c.selectSingleOptionRec}"  class="contentx"/>
+                                                                    <aura:set attribute="else">
+                                                                        <ui:inputCheckbox aura:id="checkContact" value="{!r_item.Selected}" text="{!r_item.checklistfactId}" change="{!c.selectSingleOptionRec}"  disabled="true" class="contentx"/>
+                                                                    </aura:set>
+                                                                </aura:if>
+                                                                <span class="slds-checkbox--faux" />
+                                                                <span class="slds-form-element__label"></span>
+                                                            </label>
+                                                            <aura:set attribute="else">
+                                                                <span><b>N/A</b></span>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                </aura:iteration> 
+                                                 <td data-label="Checklist Name">
+                                                     <lightning:buttonIcon iconName="utility:comments" value="{!item_index}" size="small" variant="brand" class="slds-m-left_medium" onclick="{!c.handleComments}"/> 
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>
+                                    </tbody>
+                                </table>
+                                 <br></br>
+                                 <br></br>
+                                <!--Reviewer_Table-->
+                                <aura:if isTrue="{!checklist_item.v_Reviewerlist.length!=0}">
+                                   <aura:if isTrue="{!checklist_item.isCompliance==false}">
+                                    <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered">
+                                        <thead>
+                                            <tr class="slds-line-height_reset">
+                                                <aura:if isTrue="{!checklist_item.isReject==true}">
+                                                    <th class="" scope="col">
+                                                        <div class="slds-truncate" title="Select">Select</div>
+                                                    </th>
+                                                </aura:if>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Select">Type</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Owner Name">User/Queue</div>
+                                                </th>
+                                                <th class="" scope="col">
+                                                    <div class="slds-truncate" title="Status">Action</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!checklist_item.v_Reviewerlist}" var="row" indexVar="index">
+                                                <tr class="slds-hint-parent">
+                                                    <aura:if isTrue="{!checklist_item.isReject==true}">
+                                                        <td style="align-items: center;">
+                                                            <aura:if isTrue="{!row.disableCheckbox}">
+                                                                <ui:inputCheckbox aura:id="checkContact" value="{!row.Selected}" text="{!row.selectedUserOrQueueId}" change="{!c.selectRejectApprover}" disabled="true"/>
+                                                                <aura:set attribute="else">
+                                                                    <ui:inputCheckbox aura:id="checkContact" value="{!row.Selected}" text="{!row.selectedUserOrQueueId}" change="{!c.selectRejectApprover}" disabled="false"/>  
+                                                                </aura:set>
+                                                            </aura:if> 
+                                                        </td>
+                                                    </aura:if>
+                                                    <td style="padding:5px;align-items: center;">
+                                                        <aura:if isTrue="{!row.disabled}"> 
+                                                            <lightning:select name="{!index}" value="{!row.type}" onchange="{!c.updateOptions}" disabled="true">
+                                                                <aura:iteration items="{!v.types}" var="type" >
+                                                                    <option value="{!type}">{!type}</option>
+                                                                </aura:iteration>
+                                                            </lightning:select>
+                                                            <aura:set attribute="else">
+                                                                <lightning:select name="{!index}" value="{!row.type}" onchange="{!c.updateOptions}">
+                                                                    <aura:iteration items="{!v.types}" var="type" >
+                                                                        <option value="{!type}">{!type}</option>
+                                                                    </aura:iteration>
+                                                                </lightning:select>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                    <td style="padding:5px;align-items: center;">
+                                                        <aura:if isTrue="{!row.disabled}" >
+                                                            <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}" disabled="true">
+                                                                <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                                                    <option value="{!option.id}">{!option.name}</option>
+                                                                </aura:iteration>
+                                                            </lightning:select>
+                                                            <aura:set attribute="else">
+                                                                <aura:if isTrue="{!AND(row.selectedUserOrQueueId!=null,row.selectedUserOrQueueId!=undefined)}" >
+                                                                    <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}">
+                                                                        <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                                                            <option value="{!option.id}">{!option.name}</option>
+                                                                        </aura:iteration>
+                                                                    </lightning:select>
+                                                                    <aura:set attribute="else">
+                                                                        <lightning:select name="{!index}" value="{!row.userOrQueue}" onchange="{!c.updateUserSelection}">
+                                                                            <option value=" ">--None--</option>
+                                                                            <aura:iteration items="{!row.userOrQueueOptions}" var="option">
+                                                                                <option value="{!option.id}">{!option.name}</option>
+                                                                            </aura:iteration>
+                                                                        </lightning:select>
+                                                                    </aura:set>
+                                                                </aura:if> 
+                                                            </aura:set>
+                                                        </aura:if>                  
+                                                    </td>
+                                                    <td style="padding:5px;align-items: center;">
+                                                        <br></br>
+                                                        <aura:if isTrue="{!row.disabled}">
+                                                            <lightning:button label="Delete" onclick="{!c.deleteRow}" value="{!index}" variant="destructive" disabled="true"/>
+                                                            <aura:set attribute="else">
+                                                                <lightning:button label="Delete" onclick="{!c.deleteRow}" value="{!index}" variant="destructive"/>
+                                                            </aura:set>
+                                                        </aura:if>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>
+                                        </tbody>
+                                    </table>
+                                </aura:if>
+                                </aura:if>
+                            </aura:iteration>
+                        </aura:if>
+                        <!--footer class="slds-card__footer"-->
+                        <div class="slds-align_absolute-center slds-p-bottom_small" style="width:70%">
+                            <lightning:combobox  name=""  label=""  value="{!v.current_index_value}"  placeholder=""  options="{!v.options}"  onchange="{! c.handleChange }"/>
+                        </div>
+                        <!--/footer-->
+                    </div>
+                    <aura:set attribute="else">
+                         Comment On Checklist : {!v.Selected_Checklist_Name}
+                        <lightning:textarea aura:id="commentInput" name="input1" label="Comment" value="{!v.CommentValue}" max-length="255" />
+                        <aura:if isTrue="{!v.checklisthistoryCommentValue}" >
+                            <!--lightning:textarea name="input2" label="Comment History" required="false" value="{!v.checklisthistoryCommentValue}" disabled="true"/-->
+                            <label class="slds-form-element__label" for="form-element-help-01">Comment History</label>
+                            <div class="slds-box">
+                                <lightning:formattedRichText value="{!v.checklisthistoryCommentValue}" disabled="true"/>
+                            </div>
+                        </aura:if>
+                    </aura:set>
+                </aura:if>
+            </div>
+            <div class="slds-modal__footer">
+                <div class="slds-align_absolute-center">
+                    <aura:if isTrue="{!v.Isshowcomment==false}">
+                        <aura:if isTrue="{!v.Is_Compliance_review==false}">
+                            <aura:if isTrue="{!v.disablesubmitforReview}">
+                                <lightning:button label="Submit" onclick="{!c.handleClickNextApprover}"  class="" variant="brand" disabled="true"/>
+                                <aura:set attribute="else">
+                                    <lightning:button label="Submit" onclick="{!c.handleClickNextApprover}"  class="" variant="brand" disabled="false"/>
+                                </aura:set>
+                            </aura:if>
+                            <lightning:button label="Cancel" onclick="{!c.HadlecancelApprover_Reject}"  variant="destructive" disabled="false"/> 
+                        </aura:if>
+                        <aura:if isTrue="{!v.Is_Compliance_review==true}">
+                            <lightning:button label="Close" onclick="{!c.handleClick_checklist_close}"  variant="destructive" disabled="false"/> 
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <aura:if isTrue="{!v.CommentValue}">
+                                <aura:if isTrue="{!v.disableaddcomment}">
+                                       <lightning:button label="Add" onclick="{!c.AddComment}"  variant="brand" disabled="true"/> 
+                                    <aura:set attribute="else">
+                                        <lightning:button label="Add" onclick="{!c.AddComment}"  variant="brand" disabled="false"/> 
+                                    </aura:set>
+                                </aura:if>
+                            </aura:if>
+                            <lightning:button label="Cancel" onclick="{!c.cancel}"  variant="destructive" disabled="false"/>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</aura:component>

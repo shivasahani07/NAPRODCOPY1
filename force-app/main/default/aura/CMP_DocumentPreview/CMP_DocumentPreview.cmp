@@ -1,0 +1,10 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+	<aura:attribute name="recordId" type="Id"/>
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+    <c:lwc_Previewdocuments aura:id="lWCComponent3" onvaluechange="{!c.getValueFromLwc}"  taskId="{!v.recordId}"  index="{!v.Index}" isEdit="{!v.IsEdit}" ></c:lwc_Previewdocuments>
+</aura:component>

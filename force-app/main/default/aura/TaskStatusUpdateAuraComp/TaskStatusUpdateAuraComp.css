@@ -1,0 +1,14 @@
+.THIS .example-accordion {
+--sds-c-accordion-color-border: white;
+--sds-c-accordion-heading-font-size:1rem;
+ --slds-c-accordion-heading-text-color: black;
+ 
+font-style: oblique;
+--slds-c-accordion-summary-color-background:#dadada;
+margin-left: 10px;
+margin-right:10px;
+margin-top: 20px;
+margin-bottom: 20px;
+
+
+}

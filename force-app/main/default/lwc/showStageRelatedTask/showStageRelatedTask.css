@@ -1,0 +1,117 @@
+.dummy{
+	color : blue;
+}
+
+.example-accordion {
+--sds-c-accordion-color-border: white;
+--sds-c-accordion-heading-font-size:1rem;
+ --slds-c-accordion-heading-text-color: black;
+ 
+font-style: oblique;
+--slds-c-accordion-summary-color-background:#dadada;
+margin-left: 10px;
+margin-right:10px;
+margin-top: 20px;
+margin-bottom: 20px;
+
+
+}
+/*.slds-box{
+	width:500px;
+	max-width: calc(100% - 10px);
+}*/
+.card{
+	//width:600px;
+	//max-width: calc(100% - 650px);
+	
+}
+
+.initstyle{
+	width:300px;
+	padding:5px;
+	border-radius:15px;
+}
+.cardInitStyle{
+	width:320px;
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+	transition: 0.3s;
+	margin-top: 25px;
+	margin-bottom: 25px;
+	margin-left:8px;
+	padding: 10px;
+	border-radius:10px;
+}
+
+.Lunchstyle{
+	width:450px;
+	padding:5px;
+	max-width: calc(100% - 3px);
+	border-radius:15px;
+}
+
+.cardLunchStyle{
+	width:500px;
+	max-width: calc(100% - 100px);
+	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+	transition: 0.3s;
+	margin-top: 25px;
+	margin-bottom: 25px;
+	margin-left:8px;
+	padding: 8px;
+	border-radius:10px;	
+}
+.DefaultBackground{
+ --slds-c-button-color-background:white;
+ --slds-c-button-shadow-focus:0 0 3px #0176d3;
+ 
+}
+
+.horizontal-accordion{
+     display: flex; /* or use "grid" for more control */
+    flex-direction: row;
+
+}
+
+body {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+div[role="progressbar"] {
+  --size: 4rem;
+  --fg: rgb(0,128,0);
+  --bg:#B8B8B8;
+  --pgPercentage: var(--value);
+  animation: growProgressBar 3s 1 forwards;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(closest-side, white 80%, transparent 0 99.9%, white 0),
+    conic-gradient(var(--fg) calc(var(--pgPercentage) * 1%), var(--bg) 0)
+    ;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: calc(var(--size) / 5);
+  color: var(--fg);
+}
+
+@keyframes growProgressBar {
+  0%, 33% { --pgPercentage: 0; }
+  100% { --pgPercentage: var(--value); }
+}
+
+div[role="progressbar"]::before {
+  counter-reset: percentage var(--value);
+  content: counter(percentage) '%';
+}
+
+@property --pgPercentage {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}

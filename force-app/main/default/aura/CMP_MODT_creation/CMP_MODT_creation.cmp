@@ -1,0 +1,28 @@
+<aura:component controller="Child_components_Controller">
+    
+    <aura:attribute name="Islaunched" type="boolean" />
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="IsEdit" type="boolean" />
+    <aura:attribute name="IsClosed" type="boolean" default="false"/>
+    <aura:attribute name="IstaskOnwer" type="boolean" default="false"/>
+    <aura:attribute name="DocHandlerObj" type="object" ></aura:attribute>
+    <aura:attribute name="financialAccountId" type="Id" default=""/> <!--a05Bl000002hlovIAA-->
+    <aura:attribute name="wrapperDataList" type="list" />
+    <aura:attribute name="indePendentModtObjectList" type="list" />
+    <aura:attribute name="IscalledChildComp" type="boolean" default="true"/>
+    <aura:attribute name="FinancialAccount" type="Financial_Account__c" />
+ 
+    
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="LoginUserRelatedGroup" type="list" />
+    
+    
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    
+    <c:lwc_create_modt aura:id="getMODTCMP"  FinancialAccountId="{!v.financialAccountId}"  FinancialAccountRec="{!v.FinancialAccount}" taskId="{!v.recordId}"  initFunctionality="{!v.initFunctionality}" isTaskOwnerLogin="{!v.IsEdit}" isCalledFromParent="{!v.IscalledChildComp}" onvaluechange="{!c.getValueFromLwc}" compIndex="{!v.Index}" v_isModt_task_owner="{!v.IstaskOnwer}" taskRec="{!v.taskRec}"></c:lwc_create_modt>
+</aura:component>

@@ -1,0 +1,5 @@
+<aura:event type="COMPONENT" description="Component Event Example">
+    <aura:attribute name="message" type="String" />
+    <aura:attribute name="isclosed" type="boolean" />
+    <aura:attribute name="isclosed_comp_index" type="boolean" />
+</aura:event>

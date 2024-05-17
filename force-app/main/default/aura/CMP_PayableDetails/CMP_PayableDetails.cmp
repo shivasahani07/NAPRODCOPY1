@@ -1,0 +1,31 @@
+<aura:component controller="Child_components_Controller" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:method name="callChildAuraMethod" action="{!c.callLWCMethod}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="recordId" type="Id" default=""/>
+    <aura:attribute name="financialAccountId" type="Id" default=""/>
+    <aura:attribute name="initFunctionality" type="boolean" default="true"/>
+    <aura:attribute name="componentIndex" type="Integer"/>
+    <aura:attribute name="IsEdit" type="boolean" default="true"/>
+    <aura:attribute name="IsClosed" type="boolean" default="false"/>
+    <aura:attribute name="IscalledChildComp" type="boolean" default="true"/>
+    <aura:attribute name="CompName" type="List" />
+    <aura:attribute name="Islaunched" type="boolean" />
+    <aura:attribute name="payAblesList" type="List" />
+    <aura:attribute name="finalData" type="List" />
+    <aura:attribute name="opportunityId" type="string" />
+    <aura:attribute name="FinancialAccount" type="Financial_Account__c" />
+
+     <aura:attribute name="taskRec" type="SObject"/>
+    
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    <aura:registerEvent name="compEvent" type="c:compEvent"/>
+    <!--div class="{!v.ClassValue}"-->
+    <!--aura:if isTrue="{!v.initFunctionality}"-->
+    <!--aura:if isTrue="{!not(v.Islaunched)}"-->
+    <!--c:lWC_PayableMemoCreation aura:id="lWCComponent2" onlwclaunched="{!c.handleLWCLaunched}" recordId="{!v.financialAccountId}" TaskId="{!v.recordId}" initFunctionality="{!v.initFunctionality}"></c:lWC_PayableMemoCreation-->
+    <!--/aura:if-->
+    <!--/aura:if-->
+    
+    <c:duplicatePaybleComp aura:id="lWCComponent2" onlwclaunched="{!c.handleLWCLaunched}" opportunityId="{!v.taskRec.WhatId}" TaskId="{!v.recordId}" initFunctionality="{!v.initFunctionality}" payeeAblesList="{!v.payAblesList}" finalData="{!v.finalData}"  isTaskOwnerLogin="{!v.IsEdit}" isCalledFromParent="{!v.IscalledChildComp}"  onvaluechange="{!c.getValueFromLwc}" compIndex="{!v.Index}"></c:duplicatePaybleComp>
+    <!--/div-->
+</aura:component>

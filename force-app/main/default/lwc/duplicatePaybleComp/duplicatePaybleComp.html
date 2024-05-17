@@ -1,0 +1,382 @@
+<template>
+   <template if:true={isLoading}>
+      <lightning-spinner alternative-text="Loading" size="medium" class="spinnerClass"></lightning-spinner>
+   </template>
+   <div class="slds-grid slds-wrap">
+      <div class="slds-col slds-size_12-of-12">
+         <div class="slds-m-horizontal_medium">
+            <div class="slds-tabs_card slds-m-top_large">
+               <div class="slds-page-header">
+                  <div class="slds-page-header__row">
+                     <div class="slds-page-header__col-title">
+                        <div class="slds-media">
+                           <div class="slds-media__figure">
+                              <span class="slds-icon_container">
+                                 <lightning-icon icon-name="action:new_note" alternative-text="MEMO" title="MEMO"></lightning-icon>
+                              </span>
+                           </div>
+                           <div class="slds-media__body">
+                              <div class="slds-page-header__name">
+                                 <div class="slds-page-header__name-title">
+                                    <h1>
+                                       <span>MEMO</span>
+                                       <span class="slds-page-header__title slds-truncate" title="MEMO Details">MEMO Details</span>
+                                    </h1>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="slds-col slds-size_12-of-12">
+         <div class="slds-m-around_medium">
+            <span class="slds-m-around_medium">
+               <span class="slds-float_right slds-m-vertical_medium">
+                  <span>
+                     <template if:true={isTaskOwnerLogin}>
+                        <lightning-button-menu alternative-text="Menu" onselect={handleMenuSelect}  title="Select"  tooltip="select record for entry">
+                           <lightning-menu-item label="New Payee" value="newpayee"> </lightning-menu-item>
+                           <lightning-menu-item label="New Bank Details" value="newacdetails"> </lightning-menu-item>
+                        </lightning-button-menu>
+                     </template>
+                  </span>
+                  <span>
+                     <template if:true={isTaskOwnerLogin}>
+                        <lightning-button label="Create&nbsp;disbursment&nbsp;memo" slot="actions" icon-name="utility:add" onclick={addRow} class="custom-button"  variant="brand"
+                           disabled={isDisabledAddRowButton}>
+                        </lightning-button>
+                     </template>
+                  </span>
+               </span>
+               <span class="slds-float_left slds-tabs_card slds-m-vertical_medium">
+                  <template if:true={FinancialAccountRecord}>
+                     <div class="slds-col" style="cursor: pointer;" onclick={handleFinancialAccount}>
+                        <span class="truncate" style="color:#318CE7;font-size:larger;font-weight: bold;"> Financial Account Name &nbsp; : <u  style="color:black">{FinancialAccountRecord.Name}</u></span>
+                     </div>
+                  </template>
+               </span>
+            </span>
+         </div>
+      </div>
+      <div class="slds-col">
+         <span class="">
+            <div class="slds-grid slds-wrap card_main">
+               <template if:true={FinancialAccountRecord}>
+                  <div class="slds-col slds-size_2-of-12 details_card slds-tabs_card slds-m-horizontal_medium">
+                     <span>
+                     <b>Sanctioned Amount</b> <br>
+                     &#8377; {FinancialAccountRecord.Sanctioned_Amount__c}<br>
+                     {finalSansctionAmountInWords}
+                     </span>
+                  </div>
+                  <div class="slds-col slds-size_2-of-12  details_card slds-tabs_card slds-m-horizontal_medium" style="cursor: pointer;" onclick={HandleReceivable}>
+                     <span>
+                     <b><u>Receivable Amount</u></b><br>
+                     &#8377; {FinancialAccountRecord.Receivables_Amount__c}<br>
+                     {Receivables_Amount__In_Words}
+                     </span>
+                  </div>
+                  <div class="slds-col slds-size_2-of-12  details_card slds-tabs_card slds-m-horizontal_medium">
+                     <span>
+                     <b>Available Sanctioned Amount</b> <br>
+                     &#8377; {AvailableSanctionedAmount}<br>
+                     {AvailableSanctionedAmountInWords}
+                     </span>
+                  </div>
+                  <div class="slds-col slds-size_2-of-12  details_card slds-tabs_card slds-m-horizontal_medium">
+                     <span>
+                     <b>Disbursed Amount</b> <br>
+                     &#8377; {totalGivenAmount}<br>
+                     {TotalGivenAmountInWords}
+                     </span>
+                  </div>
+                  <div class="slds-col slds-size_2-of-12  details_card slds-tabs_card slds-m-horizontal_medium">
+                     <span>
+                     <b>Available Disbursed Amount</b> <br>
+                     &#8377; {AvailableAmount}<br>
+                     {AvailableAmountInWord}
+                     </span>
+                  </div>
+               </template>
+            </div>
+         </span>
+      </div>
+      <div class="slds-col slds-size_12-of-12">
+         <div class="slds-scrollable_x">
+            <div class="table-container slds-m-around_medium">
+               <table class="slds-table slds-table_cell-buffer slds-table_bordered" style="width:100%">
+                  <thead>
+                     <tr class="slds-line-height_reset">
+                        <th class="" scope="col">
+                           <div class="" title="Entity Type">Payee Type</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Payee Name">Payee Name</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Bank Account details">*</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Email">Bank Account</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Payment Mode">Payment Mode</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Amount">Amount</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Payment Mode">Created On</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Payment Mode">Status</div>
+                        </th>
+                        <th class="" scope="col">
+                           <div class="" title="Stage">Action</div>
+                        </th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <template for:each={payAblesList} for:item="obj" for:index="index">
+                        <tr class="" key={obj.Id}>
+                           <th data-label="Entity Type" scope="row">
+                              <lightning-combobox disabled={obj.isEntityTpeDisabled} data-index={obj.index}
+                                 data-id={obj.Id} name="enityName" variant="label-hidden" label="Status"
+                                 value={obj.selectedentitytype} placeholder="Select" options={obj.entityList}
+                                 onchange={selectionChangeHandler}>
+                              </lightning-combobox>
+                           </th>
+                           <td data-label="Payee Name">
+                              <lightning-combobox disabled={obj.isPayeNameDisabled} data-index={obj.index}
+                                 data-id={obj.Id} name="payeName" variant="label-hidden" label="Status"
+                                 value={obj.selectedpayeename} placeholder="Select" options={obj.PayeeName}
+                                 onchange={selectionChangeHandler}>
+                              </lightning-combobox>
+                           </td>
+                           <td data-label="View Details" style="margin-right: -20px;">
+                              <lightning-icon icon-name="utility:info" variant="success"
+                                 alternative-text="BANK ACCOUNT INFO" title="BANK ACCOUNT INFO" size="x-small"
+                                 data-value={obj.selectedbankacc} onclick={showPophover}
+                                 style="margin-right: -20pxpx;">
+                              </lightning-icon>
+                           </td>
+                           <td data-label="Bank Account">
+                              <lightning-combobox read-only={obj.isBankAccountDisabled} data-index={obj.index}
+                                 data-id={obj.Id} name="bankAccount" variant="label-hidden" label="Status"
+                                 value={obj.selectedbankacc} placeholder="Select" options={obj.bankAccList}
+                                 onchange={selectionChangeHandler}>
+                              </lightning-combobox>
+                           </td>
+                           <td data-label="Payment Mode">
+                              <lightning-combobox disabled={obj.isPaymentModeDisabled} data-index={obj.index}
+                                 data-id={obj.Id} name="paymentMode" variant="label-hidden" label="Status"
+                                 value={obj.selectedpaymode} placeholder="Select" options={obj.payMentModePiclist}
+                                 onchange={selectionChangeHandler}>
+                              </lightning-combobox>
+                           </td>
+                           <td data-label="Amount" style="min-width: 8rem;">
+                                 <lightning-input type="number" variant="label-hidden" label="Amount"
+                                    name="amount" value={obj.Amount__c} data-id={obj.Id}
+                                    onchange={selectionChangeHandler} data-index={obj.index}
+                                    disabled={obj.isAmountDisabled}>
+                                 </lightning-input>
+                           </td>
+                           <td data-label="Created On" style="min-width: 10rem;">
+                              <lightning-input type="date" class="fields" variant="label-hidden" label="First Name"
+                                 name="status" value={obj.createdon} data-id={obj.Id} onchange={updateValues}
+                                 disabled={obj.isCreatdOnDisabled}>
+                              </lightning-input>
+                           </td>
+                           <td data-label="Status">
+                              <lightning-combobox disabled={obj.isStatusDisabled} data-index={obj.index}
+                                 data-id={obj.Id} name="status" variant="label-hidden" label="Status"
+                                 value={obj.Status__c} placeholder="Select" options={obj.statusList}
+                                 onchange={selectionChangeHandler}>
+                              </lightning-combobox>
+                           </td>
+                           <td data-label="action">
+                              <template if:false={obj.isShowsave}>
+                                 <lightning-button-icon icon-name="utility:edit" alternative-text="Edit"
+                                    variant="brand" data-index={obj.Id} title="Delete" data-id={obj.index}
+                                    onclick={handleEditAction} disabled={obj.iseditDisabled}>
+                                 </lightning-button-icon>
+                              </template>
+                              <template if:true={obj.isShowsave}>
+                                 <lightning-button-icon icon-name="utility:save" alternative-text="Save"
+                                    variant="brand" data-index={obj.Id} title="Save" data-id={obj.index}
+                                    onclick={handleSave}>
+                                 </lightning-button-icon>
+                              </template>
+                              <lightning-button-icon icon-name="action:delete" alternative-text="Delete"
+                                 variant="brand" data-index={obj.Id} title="Delete" data-id={obj.index}
+                                 onclick={handleDeleteAction} disabled={obj.isActionDisabled}
+                                 class="slds-m-left_x-small">
+                              </lightning-button-icon>
+                           </td>
+                        </tr>
+                     </template>
+                  </tbody>
+               </table>
+            </div>
+         </div>
+      </div>
+   </div>
+   <template if:false={isCalledFromParent}>
+      <div slot="footer">
+         <div class="slds-align_absolute-center">
+            <lightning-button variant="neutral" label="Cancel" onclick={closeAction}></lightning-button>
+            &nbsp;
+            <lightning-button variant="brand" label="Submit" onclick={handleSaveAction} disabled={isDisable}>
+            </lightning-button>
+         </div>
+      </div>
+   </template>
+   <template if:true={isShowNewPayeeCom}>
+      <!-- Modal/Popup Box LWC starts here -->
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+         aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_full">
+         <div class="slds-modal__container">
+            <!-- Modal/Popup Box LWC header here -->
+            <header class="slds-modal__header">
+               <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                  <lightning-icon icon-name="utility:close"
+                     alternative-text="close"
+                     variant="error"
+                     size="small" ></lightning-icon>
+                  <span class="slds-assistive-text">Close</span>
+               </button>
+               <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Entry</h2>
+            </header>
+            <!-- Modal/Popup Box LWC body starts here -->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+               <c-lwc_financial_handler record-type={newObjectType} financial-accound-id={FinancialAccountId}
+                  task-id={TaskId} is-task-owner-login={isTaskOwnerLogin}>
+               </c-lwc_financial_handler>
+            </div>
+            <!-- Modal/Popup Box LWC footer starts here
+               <footer class="slds-modal__footer">
+                   <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                   <button class="slds-button slds-button_brand" onclick={submitDetails} title="OK">OK</button>
+               </footer> -->
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+   </template>
+   <template if:true={showReceivableAccount}>
+      <template if:true={Receivables.length}>
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+               <div class="slds-modal__header">
+                  <h1 id="modal-heading-03" class="slds-modal__title slds-hyphenate">Receivables Details</h1>
+               </div>
+               <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+                  <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered"
+                     aria-label="Example table of Opportunities with vertical borders">
+                     <thead>
+                        <tr class="slds-line-height_reset">
+                           <th class="" scope="col">
+                              <div class="slds-truncate" title="Name">Name</div>
+                           </th>
+                           <th class="" scope="col">
+                              <div class="slds-truncate" title="Mode">Mode</div>
+                           </th>
+                           <th class="" scope="col">
+                              <div class="slds-truncate" title="Amount">Amount</div>
+                           </th>
+                           <th class="" scope="col">
+                              <div class="slds-truncate" title="Status">Status</div>
+                           </th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <template for:each={Receivables} for:item="record">
+                           <tr class="slds-hint-parent" key={record.Id}>
+                              <td data-label="Name">
+                                 <div class="slds-truncate" title="Name">
+                                    {record.Name}
+                                 </div>
+                              </td>
+                              <td data-label="Mode">
+                                 <div class="slds-truncate" title="Mode">
+                                    {record.Mode__c}
+                                 </div>
+                              </td>
+                              <td data-label="Amount">
+                                 <div class="slds-truncate" title="Amount">
+                                    {record.Amount__c}
+                                 </div>
+                              </td>
+                              <td data-label="Status">
+                                 <div class="slds-truncate" title="Status">
+                                    {record.Status__c}
+                                 </div>
+                              </td>
+                           </tr>
+                        </template>
+                     </tbody>
+                  </table>
+               </div>
+               <div class="slds-modal__footer">
+                  <lightning-button variant='destructive' label="Close" size='large' title='Close'
+                     onclick={handleCloseFAccount} class="slds-m-around_medium">
+                  </lightning-button>
+                  <lightning-button variant="brand" label="New" onclick={showNewRecevabls}>
+                  </lightning-button>
+               </div>
+            </div>
+         </section>
+         <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+   </template>
+   <template if:true={createRecevables}>
+      <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+         aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open slds-modal_full">
+         <div class="slds-modal__container">
+            <!-- Modal/Popup Box LWC header here -->
+            <header class="slds-modal__header">
+               <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={closeModal}>
+                  <lightning-icon icon-name="utility:close"
+                     alternative-text="close"
+                     variant="error"
+                     size="small" ></lightning-icon>
+                  <span class="slds-assistive-text">Close</span>
+               </button>
+               <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">New Entry</h2>
+            </header>
+            <!-- Modal/Popup Box LWC body starts here -->
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+               <lightning-card title="Edit Receivable" icon-name="standard:account">
+                  <div class="slds-p-around_medium">
+                     <lightning-record-edit-form object-api-name="Receivable__c" onsuccess={handleSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Financial_Account__c" value={FinancialAccountId} disabled></lightning-input-field>
+                        <lightning-input-field field-name="Type__c"></lightning-input-field>
+                        <lightning-input-field field-name="Amount__c"></lightning-input-field>
+                        <lightning-input-field field-name="Mode__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                           <lightning-button  variant="brand" type="submit" label="Save" onclick={handledisable} disabled={disableReceivable_Save}></lightning-button>
+                        </div>
+                     </lightning-record-edit-form>
+                  </div>
+               </lightning-card>
+            </div>
+            <!-- Modal/Popup Box LWC footer starts here
+               <footer class="slds-modal__footer">
+                   <button class="slds-button slds-button_neutral" onclick={closeModal} title="Cancel">Cancel</button>
+                   <button class="slds-button slds-button_brand" onclick={submitDetails} title="OK">OK</button>
+               </footer> -->
+         </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+   </template>
+   <template if:true={show_data_onHover}>
+      <c-lwc_-compact-layout-on-hover selectedrecord-id={financialEntityACdetailId} 
+         object-name="Financial_Entity_AC_Detail__c" title="Financial Entity Account Detail"
+         onhidemodalbox={hidePopHover}></c-lwc_-compact-layout-on-hover>
+   </template>
+</template>

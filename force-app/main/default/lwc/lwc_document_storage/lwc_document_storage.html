@@ -1,0 +1,103 @@
+<template>
+    <div class="slds-p-around_medium">
+        <template if:true={maskeddatalist}>
+            <lightning-accordion onsectiontoggle={handleSectionToggle} allow-multiple-sections-open
+                class="slds-m-top_medium slds-accordion">
+                <template for:each={maskeddatalist} for:item="categoryResult">
+                    <lightning-accordion-section key={categoryResult.category} name={categoryResult.category}
+                        active-section-name="Cheque" label={categoryResult.category} data-category={categoryResult.category}
+                        class="slds-p-around_small slds-text-heading_small">
+                        <div style="overflow-x:auto;">
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_striped">
+                                <!-- Table header -->
+                                <thead>
+                                    <tr>
+                                        <template for:each={categoryResult.Headervalues} for:item="chequeHeaders">
+                                            <th key={chequeHeaders} class="slds-text-title_caps" scope="col">
+                                                {chequeHeaders}
+                                            </th>
+                                            <!-- <th class="slds-text-title_caps"  key="Action" scope="col">
+                                                Action
+                                            </th> -->
+                                        </template>
+                                    </tr>
+                                </thead>
+                                <!-- Table body -->
+                                <tbody>
+                                    <template for:each={categoryResult.documents} for:item="result">
+                                        <tr key={result.Id} class={result.dynamicClass}>
+                                        <!-- <div class={result.dynamicClass} key={result.Id}> -->
+                                            <td data-label="Document ID Value" class="slds-size_1-of-12">
+                                                <template if:true={isHideCheckBoxInput}>
+                                                    {result.maskedDocumentIDValue}
+                                                </template>
+                                                <template if:false={isHideCheckBoxInput}>
+                                                    {result.unmaskedDocumentIDValue}
+                                                </template>
+                                            </td>
+                                            <td data-label="Transfer" class="slds-size_1-of-12">
+                                                {result.transferByName}
+                                            </td>
+                                            <template if:true={result.isChequeTrue}>
+                                                <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                    {result.payeeName}
+                                                </td>
+    
+                                                <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                    {result.bankAccountNumber}
+                                                </td>
+    
+                                                <td data-label="Amount" class="slds-size_1-of-12">
+                                                    {result.Amount__c}
+                                                </td>
+                                            </template>
+                                            <template  if:true={result.ismortager}>
+                                                <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                    {result.mortager_name}
+                                                </td>
+    
+                                                <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                    {result.executed_on_date}
+                                                </td>
+    
+                                                <td data-label="Amount" class="slds-size_1-of-12">
+                                                    {result.excecution_place}
+                                                </td>
+                                            </template>                                        
+                                            <td data-label="File Barcode" class="slds-size_1-of-12">
+                                                <lightning-input type="text" class="slds-m-bottom_medium" value={result.File_Barcode__c} onchange={inputValueChangeHandler} data-id={result.Id} name="fileBarcode" disabled={result.isDisabled}></lightning-input>
+                                            </td>
+                                            <td data-label="Box Barcode" class="slds-size_1-of-12">
+                                                <lightning-input type="text" class="slds-m-bottom_medium" value={result.Box_Barcode__c} onchange={inputValueChangeHandler} data-id={result.Id} name="boxBarcode" disabled={result.isDisabled}></lightning-input>
+                                            </td>
+                                            <td data-label="Date of storage" class="slds-size_1-of-12">
+                                                <lightning-input type="date" variant="label-hidden" value={result.Date_of_storage__c} label="Today" onchange={inputValueChangeHandler} name="dateOfStorage" data-id={result.Id} disabled={result.isDisabled}></lightning-input>
+                                            </td>
+                                            <td data-label="Action" class="slds-size_1-of-12">
+                                                <lightning-button-icon icon-name="action:edit" alternative-text="Edit"
+                                                variant="brand"  title="Edit" data-id={result.Id}
+                                                onclick={handleEnableEditRow} disabled={isRecordDisabled}>
+                                            </lightning-button-icon>
+                                            </td>
+                                        <!-- </div> -->
+                                        </tr>
+
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </lightning-accordion-section>
+                </template>
+            </lightning-accordion>
+            <!-- <lightning-button label="Submit" title="Non-primary action" onclick={updateDocuemtStorageDetails} class="slds-m-left_x-small"></lightning-button> -->
+        </template>
+        <template if:false={maskeddatalist}>
+            <div class="slds-page-header">
+                <h1>No Record Found To Hand Over</h1>
+            </div>
+        </template>
+        <div class="slds-grid slds-grid_align-center slds-p-around_medium">
+            <!-- Additional content here if needed -->
+        </div>
+    </div>
+</template>

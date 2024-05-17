@@ -1,0 +1,573 @@
+<template>
+   <!-- CREATING NEW CUSTOM COMPONENTS FOR ENTITY AND DETAILS -->'
+   <div class="mainDiv">
+      <div class="slds-grid slds-wrap">
+         <lightning-button  icon-name='utility:refresh' alternative-text='refresh' variant='brand' size='large' title='refresh' onclick={tempRefresh}></lightning-button >
+         <div class="slds-col slds-size_12-of-12">
+            <template if:true={isShowPayeeComp}>
+               <div class="slds-float_right">
+                  <div slot="action" class="">
+                     <lightning-button icon-name="utility:add_below" class="slds-m-around_medium" label="New Payee" variant="brand"
+                        onclick={AddNewPayeeRow} disabled={AddNewPayeeRowDisable}>
+                     </lightning-button>
+                  </div>
+               </div>
+            </template>
+         </div>
+         <div class="slds-col slds-size_12-of-12 sticybody">
+            <template if:true={isShowPayeeComp}>
+               <div class="slds-m-around_medium slds-scrollable acdetails fixTableHead">
+                  <table class="slds-table slds-table_cell-buffer slds-table_bordered"
+                     aria-labelledby="element-with-table-label other-element-with-table-label">
+                     <thead>
+                        <tr class="slds-line-height_reset">
+                           <th class="" scope="col">
+                              Payee Email
+                           </th>
+                           <th  class="" scope="col">
+                              Payee Phone
+                           </th>
+                           <th class="" scope="col">
+                              Entity Type
+                           </th>
+                           <th scope="col">
+                              Payee Name
+                           </th>
+                           <th class="" scope="col">
+                              Amount to <br/>be disbursed
+                           </th>
+                           <th class="" scope="col">
+                              disbursed Amount
+                           </th>
+                           <th class="" scope="col">
+                              Action
+                           </th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        <template for:each={payeeList} for:item="payee" for:index="index">
+                           <tr class="inputRows slds-hint-parent" key={payee.index}>
+                              <td data-label="Email" scope="row"  style="min-width: 15rem;">
+                                 <lightning-input type="email" class="slds-truncate" variant="label-hidden" id="emaill"
+                                    disabled={payee.isEditableDisabled} name="email" value={payee.email}
+                                    placeholder="Email" data-index={payee.index} onchange={handleInputChange}>
+                                 </lightning-input>
+                              </td>
+                              <td data-label="Phone" scope="row"  style="min-width: 10rem;">
+                                 <lightning-input type="phone" class="slds-truncate"  variant="label-hidden" id="mobileNumberr"
+                                    disabled={payee.isEditableDisabled} name="phone" value={payee.phone}
+                                    placeholder="Mobile Number" data-index={payee.index}
+                                    onchange={handleInputChange}>
+                                 </lightning-input>
+                              </td>
+                              <td data-label="Type" scope="row">
+                                 <lightning-combobox disabled={payee.isEditableDisabled} data-index={payee.index}
+                                    data-id={payee.index} name="type" variant="label-hidden" label="Status"
+                                    value={payee.type} placeholder="Select" options={payee.typePiclist}
+                                    onchange={handleInputChange}>
+                                 </lightning-combobox>
+                              </td>
+                              <td data-label="Name" scope="row"  style="min-width: 10rem;">
+                                 <lightning-input type="text" class="field" variant="label-hidden" name="name"
+                                    disabled={payee.isEditableDisabled} value={payee.name} placeholder="Enter Name"
+                                    onchange={handleInputChange} data-index={payee.index}>
+                                 </lightning-input>
+                              </td>
+                              <td data-label="Amount to be disbursed" scope="row"  style="min-width: 10rem;">
+                                 <lightning-input type="number" class="fields" variant="label-hidden"
+                                    name="Amount_to_be_disbursed" disabled={payee.isEditableDisabled}
+                                    value={payee.toBeDisbursedAmount} placeholder="amount to be  disbursed"
+                                    onchange={handleInputChange} data-index={payee.index}>
+                                 </lightning-input>
+                              </td>
+                              <td data-label="disbursed_Amount" scope="row">
+                                 <lightning-input type="number" class="fields" variant="label-hidden"
+                                    name="disbursed_Amount" disabled value={payee.disbursedAmount}
+                                    placeholder="Enter disbursed amount" onchange={handleInputChange}
+                                    data-index={payee.index}>
+                                 </lightning-input>
+                              </td>
+                              <td data-label="action">
+                                 <template if:true={payee.isShowEditableButton}>
+                                    <lightning-button-icon icon-name="utility:edit" data-id={payee.id}
+                                       alternative-text="edit record"
+                                       variant="brand" size="medium" title="record_update" disabled={payee.isShowEditableButtonDisabled}
+                                       onclick={editPayeeButton} data-index={payee.index}
+                                       class="slds-m-horizontal_xx-small"></lightning-button-icon>
+                                 </template>
+                                 <!-- <lightning-icon icon-name='utility:record_delete' alternative-text='record_delete' variant='' size='large' title='record_delete'></lightning-icon> -->
+                                 <template if:false={payee.isShowEditableButton}>
+                                    <lightning-button-icon icon-name="utility:save" data-id={payee.id}
+                                       alternative-text="record_update"
+                                       variant="brand" size="medium" title="record_update"
+                                       onclick={upatePayeeByRowUpdateButton} data-index={payee.index}
+                                       class="slds-m-horizontal_xx-small"></lightning-button-icon>
+                                 </template>
+                                 <lightning-button-icon icon-name="action:delete" alternative-text="Delete"
+                                    disabled={payee.isDisabledDeleteButton} variant="brand" data-index={payee.index}
+                                    title="Delete" onclick={handleDeleteAction} data-id={payee.id}>
+                                 </lightning-button-icon>
+                              </td>
+                           </tr>
+                        </template>
+                     </tbody>
+                  </table>
+               </div>
+			   <!-- <div slot="footer" class="slds-align_absolute-center slds-p-bottom_small">
+                     <lightning-button class="slds-m-top_small" label="Submit" variant="brand"
+                        onclick={submitForPayeeDetails} disabled={isDisabledSubmitButton}>
+                     </lightning-button>
+                </div> -->
+            </template>
+         </div>
+      </div>
+      <div class="slds-grid slds-wrap">
+		  <div class="slds-col slds-size_12-of-12">
+            <template if:true={isShowPayeeACdetailComp}>
+               <div class="slds-float_right slds-m-vertical_x-small">
+                  <lightning-button icon-name="utility:add_below" class="slds-m-around_medium" label="New Bank Details" variant="brand"
+                     onclick={newAddrowBankDetails} disabled={disabledAddRow}>
+                  </lightning-button>
+               </div>
+            </template>
+         </div>
+         <div class="slds-col slds-size_12-of-12">
+            <template if:true={isShowPayeeACdetailComp}>
+               <!-- <div class="slds-float_right slds-m-vertical_x-small">
+                  <lightning-button class="slds-m-around_medium" label="New Bank Details" variant="brand"
+                     onclick={AddNewPayeeRowAcDet} disabled={disabledAddRow}>
+                  </lightning-button>
+               </div> -->
+               <div class="slds-m-around_medium">
+                  <div class="table-container slds-scrollable slds-m-around_medium fixTableHead">
+                     <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_striped slds-max-medium-table_stacked-horizontal"
+                        aria-labelledby="element-with-table-label other-element-with-table-label">
+                        <thead>
+                           <tr class="slds-line-height_reset">
+                              <th class="" scope="col"  style="min-width: 10rem;">
+                                 <div class="" title="Payee Name">Payee Name</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Bank Account Holder's Name">Bank Account Holder's Name</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Bank Account Number">
+                                    Bank Account Number
+                                 </div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Verification Type">
+                                    Bank Account Type
+                                 </div>
+                              </th>
+                              <th class="" scope="col"  style="min-width: 10rem;">
+                                 <div class="" title="IFSC code">Bank IFSC code</div>
+                              </th>
+                              <th class="" scope="col"  style="min-width: 10rem;">
+                                 <div class="" title="Bnak Name">Bank Name</div>
+                              </th>
+                              <th class="" scope="col" style="min-width: 15rem;">
+                                 <div class="" title="Branch Name">Branch Name</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Verification Type">
+                                    Verification Type
+                                 </div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Verification Status">
+                                    Verification Status
+                                 </div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Verify Physically">
+                                    Verify Physically
+                                 </div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Action">Action</div>
+                              </th>
+                              <th class="" scope="col">
+                                 <div class="" title="Action">Upload Documents</div>
+                              </th>
+                              <!-- <template if:true={isPhysicallyVerificationRequired}> -->
+                              <!-- </template> -->
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <template for:each={payeeAcdetailsList} for:item="payeeacd" for:index="index">
+                              <tr class={payeeacd.isRedRow} key={payeeacd.index}>
+                                 <th data-label="text" scope="row">
+                                    <template if:true={payeeacd.isDisabledPayeeNameEdit}>
+                                       <lightning-combobox data-index={payeeacd.index} data-id={payeeacd.id}
+                                          name="selectPayee" variant="label-hidden" label="Status"
+                                          disabled={payeeacd.isDisabledPayeeNameEdit} value={payeeacd.selectedPayeeId}
+                                          placeholder="Select"
+                                          options={payeeacd.newPayeeIdPicList}
+                                          onchange={handleInputChangeACdetails}>
+                                       </lightning-combobox>
+                                    </template>
+                                    <template if:false={payeeacd.isDisabledPayeeNameEdit}>
+                                       <lightning-combobox data-index={payeeacd.index} data-id={payeeacd.id}
+                                          name="selectPayeeEdit" variant="label-hidden" label="Status"
+                                          value={payeeacd.selectedPayeeId} placeholder="Select"
+                                          options={payeeacd.newPayeeIdPicList}
+                                          onchange={handleInputChangeACdetails}>
+                                       </lightning-combobox>
+                                    </template>
+                                 </th>
+                                 <td data-label="bankAccountName" scope="row" >
+                                    <lightning-input type="text" variant="label-hidden" name="bankAccountName"
+                                       id="bankAccountName" data-index={payeeacd.index}
+                                       disabled={payeeacd.isDisabledBankAccountHolderName} value={payeeacd.bankAccountName}
+                                       placeholder="Bank Account Holder's Name" onchange={handleInputChangeACdetails}>
+                                    </lightning-input>
+                                 </td>
+                                 <td data-label="Bank Number" scope="row">
+                                    <lightning-input type="text" variant="label-hidden" id="banknumber"
+                                       disabled={payeeacd.isDisabledBankAccountNumber} value={payeeacd.bankNumber}
+                                       data-index={payeeacd.index} placeholder="Bank Account Number"
+                                       onchange={handleInputChangeACdetails} name="bankNumber"
+                                       >
+                                    </lightning-input>
+                                 </td>
+                                 <td data-label="Bank Account Type" scope="row">
+                                    <lightning-combobox data-index={payeeacd.index} data-id={payeeacd.id}
+                                       name="Bank_Account_Type__c" variant="label-hidden" label="Status"
+                                       disabled={payeeacd.isDisabledAccountType} value={payeeacd.Bank_Account_Type__c}
+                                       placeholder="Select" options={payeeacd.Bank_AccountTypePicklist}
+                                       onchange={handleInputChangeACdetails}>
+                                    </lightning-combobox>
+                                 </td>
+                                 <td data-label="IFSC code" scope="row" style="white-space: nowrap; overflow: hidden;">
+                                    <lightning-input type="text" variant="label-hidden" name="IFSC" id="IFSC"
+                                       data-index={payeeacd.index} disabled={payeeacd.isDisabledIFSCcode}
+                                       value={payeeacd.IFSC} placeholder="IFSC code" pattern="[A-Z]{4}0[A-Z0-9]{6}"
+                                       title="Please enter a valid IFSC code (Example: ABCD0123456)"
+                                       onchange={handleInputChangeACdetails}>
+                                    </lightning-input>
+                                 </td>
+                                 <td data-label="Bank Name" scope="row" style="white-space: nowrap; overflow: hidden;">
+                                    <lightning-input type="text" variant="label-hidden" id="bankName"
+                                       data-index={payeeacd.index} disabled={payeeacd.isDisabledBankName}
+                                       name="bankName" value={payeeacd.bankName} placeholder="enter bank Name"
+                                       onchange={handleInputChangeACdetails}>
+                                    </lightning-input>
+                                 </td>
+                                 <td data-label="Branch Name" scope="row" style="white-space: nowrap; overflow: hidden;">
+                                    <lightning-input type="text" variant="label-hidden" name="branchName"
+                                       id="branchName" disabled={payeeacd.isDisabledBrachName}
+                                       value={payeeacd.branchName} data-index={payeeacd.index} placeholder="enter branch"
+                                       onchange={handleInputChangeACdetails}>
+                                    </lightning-input>
+                                 </td>
+                                 <!-- <th data-label="Bank Number" scope="row">
+                                    <lightning-input type="text"  variant="label-hidden" id="banknumber"
+                                    	required disabled={payeeacd.isEditableDisabled} value={payeeacd.bankNumber}
+                                    	data-index={payeeacd.index} placeholder="Bank Account Number"
+                                    	onchange={handleInputChangeACdetails} name="bankNumber">
+                                    </lightning-input>
+                                    </th> -->
+                                 <td data-label="Verification Type" scope="row">
+                                    <lightning-combobox data-index={payeeacd.index} data-id={payeeacd.id}
+                                       name="verificationType" variant="label-hidden" label="Status"
+                                       disabled={payeeacd.isDisabledAccountVerifyType} value={payeeacd.verificationType}
+                                       placeholder="Select" options={payeeacd.verificationTypePiclist}
+                                       onchange={handleInputChangeACdetails}>
+                                    </lightning-combobox>
+                                 </td>
+                                 <th data-label="Verification Status" scope="row">
+                                    <lightning-input type="text" variant="label-hidden" id="Verification_Status__c"
+                                       disabled value={payeeacd.Verification_Status__c} data-index={payeeacd.index}
+                                       placeholder="Status" onchange={handleInputChangeACdetails}
+                                       name="bankNumber">
+                                    </lightning-input>
+                                 </th>
+                                 <template if:true={payeeacd.isShowCheckBoxs}>
+                                    <template if:false={payeeacd.isShowPhysicallVerifiedCheckbox}>
+                                       <th data-label="Verify Physically" scope="row">
+                                          <lightning-input type="checkbox" variant="label-hidden"
+                                             id="Verify_Physically"
+                                             disabled={payeeacd.isDisabledisPhysicallyVerificationRequired}
+                                             value={payeeacd.isPhysicallyVerificationRequiredDisabled}
+                                             data-index={payeeacd.index} placeholder="Status" data-id={payeeacd.id}
+                                             onchange={handleInputChangeACdetails} name="isVerifiedPhysically">
+                                          </lightning-input>
+                                       </th>
+                                    </template>
+                                    <template if:true={payeeacd.isShowPhysicallVerifiedCheckbox}>
+                                       <th data-label="Verify Physically" scope="row">
+                                          <lightning-input type="checkbox" variant="label-hidden"
+                                             id="Verified_Physically" disabled={payeeacd.Physically_verified__c}
+                                             checked={payeeacd.Physically_verified__c} data-id={payeeacd.id}
+                                             value={payeeacd.Physically_verified__c} data-index={payeeacd.index}
+                                             placeholder="Status" onchange={handleInputChangeACdetails}
+                                             name="isVerifiedPhysically">
+                                          </lightning-input>
+                                       </th>
+                                    </template>
+                              </template>
+                              <template if:false={payeeacd.isShowCheckBoxs}>
+                                 <th data-label="" scope="row">
+                                    
+                                 </th>
+                              </template>
+                                 <td data-label="action">
+                                    <template if:true={payeeacd.isShowUpdateGreenButton}>
+                                       <lightning-button-icon icon-name="utility:save" data-id={payeeacd.id}
+                                          alternative-text="record_update" disabled={payeeacd.isDisabledEditButton}
+                                          variant="brand" size="medium" title="record_update"
+                                          onclick={isShowUpdateGreenButtonGreen} data-index={payeeacd.index}
+                                          class="slds-m-horizontal_xx-small"></lightning-button-icon>
+                                    </template>
+                                    <!-- <lightning-icon icon-name='utility:record_delete' alternative-text='record_delete' variant='' size='large' title='record_delete'></lightning-icon> -->
+                                    <template if:false={payeeacd.isShowUpdateGreenButton}>
+                                       <lightning-button-icon icon-name="utility:edit" data-id={payeeacd.id}
+                                          alternative-text="edit record" disabled={payeeacd.isDisabledEditButton}
+                                          variant="brand" size="medium" title="record_update"
+                                          onclick={handleUpdateACDetailsRow} data-index={payeeacd.index}
+                                          class="slds-m-horizontal_xx-small"></lightning-button-icon>
+                                    </template>
+                                    <template itemref="">
+                                    </template>
+                                    <lightning-button-icon icon-name="action:delete" alternative-text="Delete"
+                                       disabled={payeeacd.isDisabledDeleteButton} variant="brand"
+                                       data-index={payeeacd.index} data-id={payeeacd.id} title="Delete"
+                                       class="slds-m-horizontal_xx-small" onclick={handleDeleteActionACDetailsRow}>
+                                    </lightning-button-icon>
+                                    <!-- disabled={payeeacd.isDisabledVerifyButton} -->
+                                    <!-- <lightning-icon icon-name='action:update' alternative-text='update' size='large' title='update'></lightning-icon> -->
+                                    <template if:true={payeeacd.isSendableForPennyDropVerification}>
+                                       <lightning-button-icon icon-name="utility:check"
+                                          disabled={payeeacd.isDisabledPennyDropButton}
+                                          alternative-text="send for verify" size="medium"
+                                          title="verify bank details" data-id={payeeacd.id}
+                                          data-index={payeeacd.index} onclick={approrovedSelectedBankDetails}
+                                          class="slds-m-horizontal_xx-small" variant="brand">
+                                       </lightning-button-icon>
+                                    </template>
+                                    <template if:false={payeeacd.isSendableForPennyDropVerification}>
+                                       <lightning-button-icon icon-name="utility:check"
+                                          disabled
+                                          alternative-text="send for verify" size="medium"
+                                          title="verify bank details" data-id={payeeacd.id}
+                                          data-index={payeeacd.index} onclick={approrovedSelectedBankDetails}
+                                          class="slds-m-horizontal_xx-small" variant="brand">
+                                       </lightning-button-icon>
+                                    </template>
+                                    <!-- <lightning-icon icon-name='utility:check' alternative-text='check' variant='success' size='large' title='check'></lightning-icon> -->
+                                    
+                                 </td>
+                                 <td>
+                                    <template if:true={payeeacd.isShowPhycalyVerifyButton}>
+                                       <lightning-button-icon icon-name='utility:attach'
+                                          alternative-text='physically verify' size='medium'
+                                          title='physically verify bank details' variant='brand'
+                                          data-id={payeeacd.id} class="slds-m-horizontal_xx-small"
+                                          onclick={physicallyVerifyBabkDetails} data-index={payeeacd.index}>
+                                       </lightning-button-icon>
+                                    </template>
+                                 </td>
+                                 <!-- <td>
+                                    <template if:true={payeeacd.Physically_verified__c}>
+                                       <lightning-button-icon icon-name='utility:attach'
+                                          alternative-text='physically verify' size='medium'
+                                          title='show uploaded bank details' variant='brand'
+                                          data-id={payeeacd.id} class="slds-m-horizontal_xx-small"
+                                          onclick={physicallyViewBabkDetails} data-index={payeeacd.index}>
+                                       </lightning-button-icon>
+                                    </template>
+                                 </td> -->
+                              </tr>
+                           </template>
+                        </tbody>
+                     </table>
+                  </div>
+                  <div slot="footer" class="slds-align_absolute-center slds-p-bottom_small">
+                     <!-- <lightning-button class="slds-m-top_small" label="Submit" variant="brand"
+                        onclick={submitForBankDetails}>
+                     </lightning-button> -->
+                  </div>
+               </div>
+            </template>
+         </div>
+      </div>
+      <template if:true={isShowIfsc}>
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+               <!-- Modal/Popup Box LWC header here -->
+               <header class="slds-modal__header">
+                  <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                     title="Close" onclick={closeModalIFSC}>
+                     <lightning-icon icon-name="utility:close" alternative-text="close" variant="error"
+                        size="small"></lightning-icon>
+                     <span class="slds-assistive-text">Close</span>
+                  </button>
+                  <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                     Bank Details
+                  </h2>
+               </header>
+               <!-- Modal/Popup Box LWC body starts here -->
+               <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                  <!-- Use SLDS classes for styling -->
+                  <div class="slds-grid slds-wrap">
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>Bank:</b></p>
+                        <template if:true={isIFSCAPIError}>
+                        <lightning-input type="text" variant="label-hidden"
+                              name="IFSCBANKNAME"
+                              id="ifscDetails.BANK"
+                              onchange={ifscOnChange}
+                              placeholder="enter bank name"
+                              value={ifscDetails.BANK}>
+                          </lightning-input>
+                        </template>
+                        <template if:false={isIFSCAPIError}>
+                           <p>{ifscDetails.BANK}</p>
+                        </template>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>Branch:</b></p>
+                        <template if:true={isIFSCAPIError}>
+                           <lightning-input type="text" variant="label-hidden"
+                                 name="IFSCBRANCHNAME"
+                                 id="ifscDetails.BRANCH"
+                                 onchange={ifscOnChange}
+                                 placeholder="enter branch name"
+                                 value={ifscDetails.BRANCH}>
+                             </lightning-input>
+                           </template>
+                           <template if:false={isIFSCAPIError}>
+                              <p>{ifscDetails.BRANCH}</p>
+                           </template>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>City:</b></p>
+                        <p>{ifscDetails.CITY}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>District:</b></p>
+                        <p>{ifscDetails.DISTRICT}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>State:</b></p>
+                        <p>{ifscDetails.STATE}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>Address:</b></p>
+                        <p>{ifscDetails.ADDRESS}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>NEFT:</b></p>
+                        <p>{ifscDetails.NEFT}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>RTGS:</b></p>
+                        <p>{ifscDetails.RTGS}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>IMPS:</b></p>
+                        <p>{ifscDetails.IMPS}</p>
+                     </div>
+                     <div class="slds-col slds-size_1-of-2">
+                        <p><b>UPI:</b></p>
+                        <p>{ifscDetails.UPI}</p>
+                     </div>
+                  </div>
+               </div>
+               <footer class="slds-modal__footer">
+                  <!-- <button class="slds-button slds-button_neutral" onclick={updateBankDetailsManually} title="Enter Manually">
+                  Enter Manually
+                  </button> -->
+                  <button class="slds-button slds-button_brand" onclick={populateBankDetails} title="Confirm">
+                  Confirm
+                  </button>
+               </footer>
+            </div>
+         </section>
+         <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+      <!--Documents On MODT-->
+      <template if:true={isShowMODTCOMP}>
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_large">
+            <div class="slds-modal__container">
+               <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                  <c-lwc_-handledocuments record-id={taskId}
+                     extended-sobject-record-id={currentBankDetailsRecordId} onlwclaunched={closeMODT}
+                     is-edit={isTaskOwnerLogin} index={currentTobeUpdateBankdetailsindex}>
+                  </c-lwc_-handledocuments>
+               </div>
+               <div class="slds-modal__footer">
+                  <div class="slds-align_absolute-center">
+                     <lightning-button variant='destructive' label="Close" size='large' title='Close'
+                        onclick={backTomodt} class="slds-m-around_medium">
+                     </lightning-button>
+                     <lightning-button variant="brand" label="Save" onclick={callDocumentHandlerFinalSubmit}>
+                     </lightning-button>
+                  </div>
+               </div>
+            </div>
+         </section>
+         <div class="slds-backdrop-UIClass slds-backdrop slds-backdrop_open"></div>
+      </template>
+      <template if:true={loaded} class="exampleHolder">
+         <lightning-spinner alternative-text="Loading" size="large"></lightning-spinner>
+      </template>
+      <template if:true={isShowConfirmationComp}>
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true"
+            aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+               <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-3">
+                  <c-custom-confirmation message="Are you sure you want to perform this action?"
+                     onresponse={handleConfirmationResponse} variant={confirmationVariant}>
+                  </c-custom-confirmation>
+               </div>
+            </div>
+         </section>
+      </template>
+
+
+      <template if:true={isShowEsistingAccount}>
+      <!-- <template for:each={accountListExistsByphoneORemail} for:item="account" for:index="index"> -->
+         <div key={account.id}>
+         <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-03" aria-modal="true"
+         aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+         <div class="slds-modal__container">
+            <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-4">
+               <h2 class="slds-modal__header">Account List</h2>
+               <table class="custom-table">
+                  <thead>
+                     <tr>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Email</th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                     <template for:each={accountListExistsByphoneORemail} for:item="account" for:index="index">
+                        <tr key={account.id}>
+                           <td>{account.Name}</td>
+                           <td>{account.Phone}</td>
+                           <td>{account.Email_Id__c}</td>
+                        </tr>
+                     </template>
+                  </tbody>
+               </table>               
+            </div>
+            <footer class="slds-modal__footer">
+               <div class="slds-align_absolute-center">
+                  <lightning-button variant='destructive' label="Close" size='large' title='Close'
+                     onclick={isShowEsistingAccountClosed}>
+                  </lightning-button>
+               </div>
+           </footer>
+         </div>
+         </section>
+         <div class="slds-backdrop slds-backdrop_open"></div>
+      </div>
+      <!-- </template> -->
+      </template>
+   </div>
+</template>

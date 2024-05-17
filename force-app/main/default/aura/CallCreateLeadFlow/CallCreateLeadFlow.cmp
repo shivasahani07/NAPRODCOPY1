@@ -1,0 +1,5 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction,lightning:availableForFlowScreens,lightning:availableForFlowActions,lightning:actionOverride" access="global" >
+	    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:attribute name="hasError" type="Boolean" default="false"/>
+    <lightning:flow aura:id="CreateLeadFlow" onstatuschange="{!c.statusChange}"/>
+</aura:component>

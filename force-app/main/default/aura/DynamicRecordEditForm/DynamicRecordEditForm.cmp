@@ -1,0 +1,20 @@
+<aura:component controller="DynamicRecordEditFormController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" >
+    <aura:attribute name="actionFormList" type="List" />
+    <aura:attribute name="PADID" type="String" /> <!--default="a01Bl00000755ZLIAY",default="00TBl000001YDITMA4"-->
+    <aura:attribute name="TaskId" type="String" />
+    <aura:attribute name="taskRec" type="task"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <div class="card">
+        <lightning:layout>
+            <aura:iteration items="{!v.actionFormList}" var="item">
+                <lightning:layoutitem flexibility="auto" padding="around-small">
+                    <lightning:input type="{!item.Input_Type__c}" label="{!item.Label_Name__c}" value="{!item.Label_API__c}" onchange="{!c.handleInputChange}" id="{!item.Label_API__c}"/>
+                </lightning:layoutitem>
+            </aura:iteration>
+        </lightning:layout>
+        
+        <div class="slds-m-around_medium">
+            <button class="slds-button slds-button_brand" type="submit" onclick="{!c.SubmitFormDetails}">Submit</button>
+        </div>
+    </div>
+</aura:component>

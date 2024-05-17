@@ -1,0 +1,13 @@
+<aura:component access="global" >
+    <aura:method name="callAjax" action="{!c.callAjax}">
+        <!-- Method can be, for example, GET or POST -->
+        <aura:attribute name="method" type="String" default="GET" />
+        <!-- URL to call -->
+        <aura:attribute name="url" type="String" />
+        <!-- Whether the call should be sync or async -->
+        <aura:attribute name="async" type="Boolean" default="true" />
+        <!-- Callback method on call complete -->
+        <aura:attribute name="callbackMethod" type="Object" />
+    </aura:method>
+	
+</aura:component>

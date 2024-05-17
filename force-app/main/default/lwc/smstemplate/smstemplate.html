@@ -1,0 +1,30 @@
+<template>
+	<lightning-card title="Send SMS">
+		<div>
+			<lightning-combobox name="progress" label="Select Subject" value={value} placeholder="Select Subject"
+				options={templateSubjects} onchange={smsTempSubjecthandleChange}></lightning-combobox>
+
+		</div>
+
+		<div class="slds-form-element__control slds-var-p-top_medium">
+			<lightning-input-rich-text value={Selectedsmstempbody} onchange={handleBodyChange}></lightning-input-rich-text>
+		</div>
+		<div class="slds-form-element__control slds-var-p-top_medium">
+			<!-- Simple -->
+			<div class="slds-p-around_x-small lgc-bg">
+				SMS Variable value
+				<lightning-helptext content="You'll receive weekly updates"></lightning-helptext>
+			</div>
+			<div>
+				<lightning-input variant="label-hidden" value={SMSvariablevalue} onchange={handlevarvalueChange}></lightning-input>
+			</div>
+			
+		</div>
+
+        <lightning-button label="Send SMS" title="Non-primary action" onclick={SendSmshandler} class="slds-m-left_x-small"></lightning-button>
+
+	</lightning-card>
+
+
+
+</template>

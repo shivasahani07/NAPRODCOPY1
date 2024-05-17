@@ -1,0 +1,63 @@
+.dummy{
+	color : black;
+}
+
+.hidden {
+	display: none;
+ }
+
+
+
+.slds-backdrop{
+
+}
+
+.slds-modal_large{
+ height:400px;
+}
+
+
+/* .flex-container {
+    --slds-dropdown-combobox_container-min-width: 300px;
+} */
+
+.slds-input {
+    width: fit-content;
+}
+
+.fullWidth{
+  width: 100% !important;
+}
+
+.slds-scrollable_x {
+  position: relative;
+  top: 0;
+  right: 0;
+  overflow: relative;
+  width:100%;
+
+}
+
+.card_main {
+    display: flex;
+}
+
+.details_card {
+    flex: 1;
+    height:9rem;
+    font-weight:600;
+   background-color:#f3f3f3;
+   box-shadow: 10px 10px 5px f3f3f3;
+    
+}
+
+.details_card b {
+    color:#318CE7;
+    font-size:larger;
+    font-weight: bold;
+}
+
+.details_card b {
+    color:#318CE7;
+    font-size:larger;
+}

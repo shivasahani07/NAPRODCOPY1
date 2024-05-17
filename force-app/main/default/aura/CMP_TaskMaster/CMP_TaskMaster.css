@@ -1,0 +1,7 @@
+.THIS .slds-backdrop slds-backdrop_open{
+    --slds-c-backdrop-color-background:#FFFFF7; 
+}
+    
+.THIS.overflowModal {
+    /*overflow: visible;*/
+}

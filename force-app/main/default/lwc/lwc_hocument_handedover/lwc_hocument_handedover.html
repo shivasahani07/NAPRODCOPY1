@@ -1,0 +1,161 @@
+<template>
+	<div class="slds-p-around_medium slds-scrollable_x">
+		<div class="slds-tabs_card slds-m-top_large">
+			<div class="slds-page-header">
+				<div class="slds-page-header__row">
+					<div class="slds-page-header__col-title">
+						<div class="slds-media">
+							<div class="slds-media__figure">
+								<span class="slds-icon_container">
+                                <lightning-icon icon-name='standard:datashares' alternative-text='file' size='large' title='file' variant="error"></lightning-icon>
+		                        </span>
+							</div>
+							<div class="slds-media__body">
+								<div class="slds-page-header__name">
+									<div class="slds-page-header__name-title">
+										<h1>
+											<span>Document Handover</span>
+											<span class="slds-page-header__title slds-truncate" title="Document Handover">Document Handover</span>
+										</h1>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<template if:true={maskeddatalist}>
+			<lightning-accordion onsectiontoggle={handleSectionToggle} allow-multiple-sections-open
+				class="slds-m-top_medium">
+				<template for:each={maskeddatalist} for:item="categoryResult">
+					<lightning-accordion-section key={categoryResult.category} name={categoryResult.category}
+						active-section-name="Cheque" label={categoryResult.category}
+						data-category={categoryResult.category} class="slds-p-around_small slds-text-heading_small">
+						<table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered">
+							<thead>
+								<!-- <tr class="slds-line-height_reset slds-text-heading_small"> -->
+								<tr>
+									<template for:each={categoryResult.Headervalues} for:item="chequeHeaders">
+										<th key={categoryResult.Headervalues} class="" scope="col">
+											<div class="slds-truncate" title={chequeHeaders}>{chequeHeaders}</div>
+										</th>
+									</template>
+								</tr>
+							</thead>
+							<tbody>
+								<template for:each={categoryResult.documents} for:item="result">
+									<tr key={result.Id}>
+										<!-- <td data-label="Document ID Name" class="slds-truncate">
+                                            {result.Document_Metadata__r.Document_Id_Name__c}</td> -->
+										<td data-label="Document ID Value" class="slds-size_1-of-12">
+											<template if:true={isHideCheckBoxInput}>
+												{result.maskedDocumentIDValue}
+											</template>
+											<template if:false={isHideCheckBoxInput}>
+												{result.unmaskedDocumentIDValue}
+
+											</template>
+										</td>
+
+										<td data-label="Transfer" class="slds-size_1-of-12">
+											<template if:true={result.Transfer_To__c}>
+											   {result.Transfer_To__r.Name}
+											</template>
+										</td>
+
+										<template if:true={result.isChequeTrue}>
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.payeeName}
+                                            </td>
+
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.bankAccountNumber}
+                                            </td>
+
+                                            <td data-label="Amount" class="slds-size_1-of-12">
+                                                {result.Amount__c}
+                                            </td>
+                                        </template>
+                                        <template  if:true={result.ismortager}>
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.mortager_name}
+                                            </td>
+
+                                            <td data-label="Payee Name" class="slds-size_1-of-12">
+                                                {result.executed_on_date    }
+                                            </td>
+
+                                            <td data-label="Amount" class="slds-size_1-of-12">
+                                                {result.excecution_place}
+                                            </td>
+                                        </template>
+										<td data-label="Transfer" class="slds-size_1-of-12">
+											<lightning-combobox name={result.Id} data-id={result.Id} label="Status"
+												value={result.Status__c} placeholder="Select Status" options={options}
+												variant="label-hidden" onchange={statusHandler}>
+											</lightning-combobox>
+										</td>
+										<td data-label="Comment" class="slds-size_1-of-12">
+											<template if:true={result.isCommentVisible}>
+												<lightning-combobox name={result.Id} data-id={result.Id} label=""
+													placeholder="Sub Status" value={result.Sub_Status__c}
+													options={result.substatusOption} onchange={substatusHandler}>
+												</lightning-combobox>
+											</template>
+
+										</td>
+
+										<td data-label="Document reqired" class="slds-size_1-of-12">
+											<template if:true={result.isDocumentRequired}>
+												<lightning-button-icon icon-name='utility:attach'
+													alternative-text='physically verify' size='medium'
+													title='physically verify back details' variant='brand'
+													data-id={result.Id} class="slds-m-horizontal_xx-small" data-mastertaskid={result.Task_Id__c}
+													data-extendedsobjectid={result.Extended_SObject_RecordId__c}
+													onclick={physicallyVerifyBabkDetails} data-index={result.index}>
+												</lightning-button-icon>
+											</template>
+										</td>
+									</tr>
+								</template>
+							</tbody>
+						</table>
+					</lightning-accordion-section>
+				</template>
+			</lightning-accordion>
+		</template>
+		<template if:false={maskeddatalist}>
+			<div class="slds-page-header">
+				<h1>No Record Found To handed Over</h1>
+			</div>
+		</template>
+		<div class="slds-grid slds-grid_align-center slds-p-around_medium">
+			<template if:true={maskeddatalist}>
+			</template>
+		</div>
+	</div>
+
+	<template if:true={isShowMODTCOMP}>
+		<section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true"
+			aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+			<div class="slds-modal__container">
+				<div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+					<c-lwc_-handledocuments record-id={masterTaskId} is-edit={isTaskOwnerLogin} index={currentRecordindex}
+						onlwclaunched={closeMODT}   extended-sobject-record-id={ExtendedSObjectRecordId} uploadtask-id={UploadtaskId}>
+					</c-lwc_-handledocuments>
+				</div>
+				<div class="slds-modal__footer">
+					<div class="slds-align_absolute-center">
+						<lightning-button variant='destructive' label="Close" size='large' title='Close'
+							onclick={backTomodt} class="slds-m-around_medium">
+						</lightning-button>
+						<lightning-button variant="brand" label="Save" onclick={callDocumentHandlerFinalSubmit}>
+						</lightning-button>
+					</div>
+				</div>
+			</div>
+		</section>
+		<div class="slds-backdrop-UIClass slds-backdrop slds-backdrop_open"></div>
+	</template>
+</template>

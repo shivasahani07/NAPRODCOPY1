@@ -1,0 +1,8 @@
+<aura:event type="COMPONENT" description="Component Event Example">
+    <aura:attribute name="isCloseModal" type="boolean" />
+    <aura:attribute name="isCloseModal_compliance_checklist" type="boolean" />
+    <aura:attribute name="Is_Approve_review" type="boolean" />
+    <aura:attribute name="Is_Reject_review" type="boolean" />
+    <aura:attribute name="reviewer_Ids" type="List" />
+    <aura:attribute name="Checklist_Fact" type="List" />
+</aura:event>

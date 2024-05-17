@@ -1,0 +1,107 @@
+<aura:component controller="TaskMaster" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" >
+    
+    
+    <aura:html tag="style">
+        .slds-p-around–medium {
+        padding: 0rem !important;
+        }
+        .slds-modal__content{
+            overflow-x:hidden !important;
+            height:unset !important;
+            max-height:unset !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .cuf-content {
+        padding: 0 0rem !important;
+        }
+    </aura:html>
+    <ltng:require styles="{!$Resource.popupCSS}" />
+    
+    
+    <aura:attribute name="recordId" type="string"/> 
+    <aura:attribute name="IsParentTaskId" type="Boolean" default="false"/>
+    <aura:attribute name="currentTaskId" type="Id" default=""/>
+    
+    <aura:attribute name="IsEdit" type="Boolean" default="false"/>
+    <aura:attribute name="Isclose" type="Boolean" default="false"/>
+    <aura:attribute name="Index" type="Integer" default="0"/>
+    
+    <aura:attribute name="PADID" type="String" default=""/>
+    <aura:attribute name="TaskObject" type="SObject" />
+    <aura:attribute name="Iseditable" type="Boolean" default="true"/>
+    <aura:attribute name="componentIndex" type="Integer" default="0"/>
+    <aura:attribute name="executedCompList" type="String[]"/>
+    <aura:attribute name="ProgressBarValues" type="String[]" />
+    <aura:attribute name="IndexCompName" type="list" />
+    <aura:attribute name="taskRec" type="SObject"/>
+    <aura:attribute name="CompName" type="List" />
+    <aura:attribute name="DynamicCmp" type="Aura.Component[]"/>
+    <aura:attribute name="initFunctionality" type="Boolean" default="false"/>
+    
+    <aura:attribute name="tkcreator" type="Boolean" default="false"/>
+    <aura:attribute name="tkreviewer" type="Boolean" default="false"/>
+    <aura:attribute name="ReviewtaskIds" type="String[]"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="isclosed" type="boolean" />
+    <aura:attribute name="isclosed_comp_index" type="boolean" />
+    <aura:handler name="compEvent" event="c:compEvent" action="{!c.handleCmpEvent}" />
+    
+    <aura:if isTrue="{!v.Iseditable==true}">        
+        <div class="modal-header slds-modal__header slds-size_1-of-1" style="background-color:#65DFF6;">
+            <h4 class="title slds-text-heading--medium" style="font-size:25px;color:white;">Task Management</h4>
+        </div>
+        <div class="slds-modal__content slds-p-around--x-small  slds-size_2-of-2 slds-is-relative slds-scrollable slds-modal_large">
+            <lightning:progressIndicator currentStep="{!v.componentIndex+1}" type="base" variant="base">
+                <aura:iteration items="{!v.IndexCompName}" var="val">
+                   <aura:if isTrue="{!equals(v.ProgressBarValues.length,1)}">
+                    <lightning:progressStep label="{!val.value}" value="{!val.key+2}"/>
+                       <aura:set attribute="else">
+                           <lightning:progressStep label="{!val.value}" value="{!val.key+1}"/>
+                       </aura:set>
+                   </aura:if>
+                </aura:iteration>
+            </lightning:progressIndicator>
+            
+            <aura:iteration items="{!v.CompName}" var="val">
+                <aura:if isTrue="{!val.isvisible}">
+                    <aura:iteration items="{!v.DynamicCmp}" var="dyval" indexVar="dyindex">
+                        <aura:if isTrue="{!equals(val.index,dyindex)}">
+                            {!dyval}
+                        </aura:if>
+                    </aura:iteration>
+                </aura:if> 
+            </aura:iteration>  
+            
+            <div class="modal-footer slds-modal__footer slds-size_1-of-1">
+                <div class="slds-align_absolute-center">
+                    <aura:if isTrue="{!v.IsEdit==true}">
+                        <aura:if isTrue="{!notequals(v.componentIndex,0)}">
+                            <lightning:button variant="Destructive" onclick="{!c.HandlePrevious}"  label="Previous"></lightning:button>
+                            <aura:if isTrue="{!equals(v.componentIndex+1,v.ProgressBarValues.length)}">
+                                <lightning:button variant="brand" onclick="{!c.HandleSave}"  label="Submit"></lightning:button>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!equals(v.ProgressBarValues.length,1)}">
+                            <lightning:button variant="brand" onclick="{!c.HandleSave}"  label="Submit"></lightning:button>
+                            <aura:set attribute="else">
+                                <aura:if isTrue="{!notequals(v.componentIndex,v.ProgressBarValues.length-1)}">
+                                    <lightning:button variant="brand" onclick="{!c.HandleNext}"  label="Next"></lightning:button>
+                                </aura:if>
+                            </aura:set>
+                        </aura:if>
+                        <aura:if isTrue="{!notequals(v.ProgressBarValues.length,1)}">
+                        <aura:if isTrue="{!equals(v.componentIndex,v.ProgressBarValues.length-1)}">
+                          <!--lightning:button variant="brand" onclick="{!c.Preview}"  label="Preview"></lightning:button-->
+                       </aura:if>
+                        </aura:if>
+                        <aura:set attribute="else">
+                            <lightning:button variant="Destructive" onclick="{!c.Handleclose}"  label="Close"></lightning:button>
+                        </aura:set>
+                    </aura:if>
+                </div>
+            </div>
+        </div>
+    </aura:if>
+</aura:component>

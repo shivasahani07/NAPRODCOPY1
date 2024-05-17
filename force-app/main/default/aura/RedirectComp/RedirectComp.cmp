@@ -1,0 +1,45 @@
+<aura:component
+    implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction"
+    access="global" controller="RedirectCompApexhelper">
+
+    <aura:attribute name="CaseRec" type="Object" />
+    <aura:attribute name="AccRec" type="Object" />
+    <aura:attribute name="ShowLoanDetailButton" type="Boolean" default="false"/>
+    <aura:attribute name="ShowCustDetailButton" type="Boolean" default="false"/>
+    <aura:attribute name="disableCustDetailButton" type="Boolean" default="false"/>
+    <aura:attribute name="disableLoanDetailButton" type="Boolean" default="false"/>
+    <aura:attribute name="ShowMessage" type="Boolean" default="false"/>
+    <aura:attribute name="LoanBtnMessage" type="String"/>
+    <aura:attribute name="CustBtnMessage" type="String"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+    <!--Example of using AND condition with aura:if-->
+
+    <lightning:card  title="View LMS ">
+        <aura:if isTrue="{!v.ShowCustDetailButton}">
+            <lightning:button variant="brand" label="Customer Details" disabled="{!v.disableCustDetailButton}" title="{!v.CustBtnMessage}" onclick="{! c.ViewCustLMSsystem }" />
+        </aura:if>
+        <aura:if isTrue="{!v.ShowLoanDetailButton}"> 
+            <lightning:button variant="brand" label="Loan Details" title="{!v.LoanBtnMessage}" onclick="{! c.ViewLoanLMSsystem }" disabled="{!v.disableLoanDetailButton}"/>
+        </aura:if>
+
+        
+    
+        <aura:if isTrue="{!v.ShowMessage}">
+            <div>
+                <p>
+                    Complete Financial Account Detail not present in Salesforce. Please Contact Admin.
+                </p>
+            </div>
+           
+        </aura:if> 
+        
+    </lightning:card>
+
+    
+
+
+
+
+</aura:component>

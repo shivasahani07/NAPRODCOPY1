@@ -1,0 +1,100 @@
+<template>
+    <!--div>
+       <lightning-datatable
+                key-field="id"
+                data={data}
+                columns={columns}
+                onrowselection={getSelectedName}>
+        </lightning-datatable>
+    </div>
+        <br/-->
+        
+<div class="slds-scrollable">
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+        <thead>
+            <tr>
+                <th style="width: 3rem;">
+                    <!-- Select -->
+                    <div class="slds-th__action slds-p-around_xx-small">
+                        <lightning-input type="checkbox" onchange={selectAllRows}></lightning-input>
+                    </div>
+                </th>
+                <th>
+                    Task Subject
+                </th>
+                <th>
+                    Payee Type
+                </th>
+                <th>
+                    Payee Name
+                </th>
+                <th>
+                    Bank Account
+                </th>
+                <th>
+                    Payment Mode
+                </th>
+                <th>
+                    Amount
+                </th>
+                <th>
+                    Status
+                </th>
+                <th>
+                    Action
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={data} for:item="record">
+                <tr key={record.id}>
+                    <td>
+                        <div class="slds-th__action slds-p-around_xx-small">
+                            <lightning-input type="checkbox" data-id={record.Id} checked={record.v_checked} onchange={getSelectedName}></lightning-input>
+                        </div>
+                    </td>
+                        <td>
+                            {record.Task_Id__c}
+                        </td>
+                        <td>
+                            {record.Payee_Type__c}
+                        </td>
+                        <td>
+                            {record.Finacial_Entity_Details__r.Name}
+                        </td>
+                        <td>
+                            {record.Financial_Entity_A_C_Details__r.Bank_Account_Number__c}
+                        </td>
+                        <td>
+                            {record.Mode__c}
+                        </td>
+                        <td>
+                            {record.Amount__c}
+                        </td>
+                        <td>
+                            {record.Status__c}
+                        </td>
+                        <td>
+                            <a onclick={redirectToMasterComp} data-id={record.Id}>View/Edit</a>
+                        </td>
+                </tr>
+            </template>
+        </tbody>
+    </table>
+</div>
+
+    <div class="slds-align_absolute-center" style="height:5rem">
+            <lightning-button
+                variant="neutral"
+                label="Reject"
+                onclick={handleReject}
+            ></lightning-button>
+            <lightning-button
+                class="slds-p-around_x-small"
+                variant="brand"
+                label="Approve"
+                onclick={handleApprove}
+            ></lightning-button>
+        </div>
+        
+</template>
