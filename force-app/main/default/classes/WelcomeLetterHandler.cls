@@ -1,6 +1,6 @@
-public class WelcomeLetterHandler {
+public without sharing class WelcomeLetterHandler {
     
-    public static AuditResponseWrapperClass WelcomeLetterGenerationFlow(Id taskId){
+    public Static AuditResponseWrapperClass CallRepymentScheduleAPI(Id taskId){
         Id recordTypeId 	= Schema.SObjectType.Receivable__c.getRecordTypeInfosByName().get('Repayment Schedule').getRecordTypeId();
         String auditResult 	= Label.AuditAPIFailedStatus;
         
@@ -14,26 +14,23 @@ public class WelcomeLetterHandler {
         
         AuditResponseWrapperClass auditResponse = new AuditResponseWrapperClass();
         auditResponse.auditRec 					= new API_Callout_Audit__c();
-        
         if(financial_Account.Receivables__r.isEmpty()){
-            try{
-                auditResponse = QuickBrickAPI.sendGetRequest(financial_Account);
-                createPDFFile(financial_Account.Id,taskId);
-            }catch(Exception e){
-                system.debug('Error::'+e.getStackTraceString());
-            }
+            auditResponse = QuickBrickAPI.sendGetRequest(financial_Account);
         }else{
             auditResponse.auditRec.Response__c = 'Schedule already initiated.';
             auditResponse.auditRec.API_Status__c = Label.AuditAPIStatus;
         }
-        
-        
         return auditResponse;
     }
     
-    //@future(callout=true)
-    Public static void createPDFFile(Id financial_Account_Id,Id taskId){
-        WelcomeLetterController.generateWelcomeletterPDF(financial_Account_Id,taskId);
+    public static AuditResponseWrapperClass WelcomeLetterGenerationFlow(Id taskId){
+        Id recordTypeId 	= Schema.SObjectType.Receivable__c.getRecordTypeInfosByName().get('Repayment Schedule').getRecordTypeId();
+        String auditResult 	= Label.AuditAPIFailedStatus;
+        
+        Id opportunity_Id 						= [SELECT Id,WhatId From Task Where Id =: taskId].WhatId;
+        Financial_Account__c financial_Account 	= [SELECT Id,Tenuer__c,Name
+                                                   From Financial_Account__c 
+                                                   Where Opportunity__c =:opportunity_Id];
+        return WelcomeLetterController.generateWelcomeletterPDF(financial_Account.Id,taskId);
     }
-    
 }

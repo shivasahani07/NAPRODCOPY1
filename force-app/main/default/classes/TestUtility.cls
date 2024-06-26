@@ -470,6 +470,13 @@ public without sharing class TestUtility{
         return testDocumentMetaData;
     }
     
+    public static Document_Metadata__c testcreateDocumentmetadata(){
+        Document_Metadata__c testDocumentMetaData = new Document_Metadata__c();
+        testDocumentMetaData.Name = 'Welcome Letter';
+        testDocumentMetaData.Document_Name__c='Welcome Letter';
+        return testDocumentMetaData;
+    }
+    
     // ====================== Might not be used =================================
     /*public static  Process_Path_Task_Detail__c createPPTD(){
         Process_Path__c  testPP=createTestProcessPath();
@@ -857,6 +864,17 @@ public without sharing class TestUtility{
             Document_Sharing_Task_Ids__c = testTask.Id
         );
         insert docHandler;
+        return docHandler;
+    }
+    
+    Public static Receivable__c testCreateReceivables(Id financialAccId){
+        Id recordTypeId 	= Schema.SObjectType.Receivable__c.getRecordTypeInfosByName().get('Repayment Schedule').getRecordTypeId();
+        Receivable__c rc=new Receivable__c(Financial_Account__c=financialAccId,Amount__c=1000,IsActive__c=true,RecordTypeId=recordTypeId);
+        return rc;    
+    }
+    
+    Public Static Document_Handler__c testCreateDocHandler(Id FinancialAccountId){
+        Document_Handler__c docHandler = new Document_Handler__c(Financial_Account__c=FinancialAccountId);
         return docHandler;
     }
     

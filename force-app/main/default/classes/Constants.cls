@@ -43,9 +43,12 @@ public with sharing class Constants {
     // ======================================================= Task Status Constants =============================================================
 
     public static final String TASK_STATUS_COMPLETED = 'Completed';
+    public static final String TASK_STATUS_OPEN = 'Open';
+    public static final String TASK_STATUS_DRAFT = 'Draft'; 
     public static final String TASK_STATUS_SYSTEM_CLOSED = 'System Closed';
     public static final String TASK_STATUS_SUBMITED_FOR_REVIEW = 'Submited For Review';
     public static final String DOC_HANDLER_SUBMITTED_FOR_EXECUTION = 'Submitted For Execution';
+    public static final String PAYABLE_SUBMITTED_FOR_EXECUTION = 'Submitted For Execution';
     public static final String PAYABLE_STATUS_MEMO_CREATED = 'Memo Created';
     public static final String DOC_HANDLER_MEMO_EXECUTED = 'MEMO EXECUTED';
     public static final String OTC_DOCUMENT_COLLECTION = 'OTC Document Collection';
@@ -53,6 +56,11 @@ public with sharing class Constants {
     public Static final String OTC_DOC_TYPE = 'OTC';
     public Static final String PDD_DOC_TYPE = 'PDD';
     public Static final String DOC_HANDLER_DRAFT = 'Draft';
+    public static final String PAYABLE_PAYMENT_MODE_CHEQUE = 'Cheque';
+    public static final String PAYABLE_PAYMENT_MODE_RTGS = 'RTGS';
+    public static final String PAYABLE_PAYMENT_MODE_NEFT = 'NEFT';
+    public static final String MEMO_TASK_SUBJECT_CHEQUE = 'Bulk Memo Executiom Submission (Cheque)';
+    public static final String MEMO_TASK_SUBJECT_RTGS   = 'Bulk Memo Executiom Submission (RGTS/NFT)';
     
     //========================Do Onboarding Process Stages ==============================
     

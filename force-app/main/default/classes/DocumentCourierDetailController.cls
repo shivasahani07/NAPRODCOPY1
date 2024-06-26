@@ -2,12 +2,16 @@ public without sharing class DocumentCourierDetailController {
     // @AuraEnabled(cacheable=true)
     @AuraEnabled
     public static wrapperforDocuments getDocumentCourierDetails(task inp_Task) {
-        Account userAccDet;
-        string userAccId;
-        userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id =:[SELECT Individual.AccountId__c FROM User WHERE Id = :userinfo.getUserid()].Individual.AccountId__c];
-        userAccId=userAccDet.Id;
-        string v_query='';
+        list<Account> userAccDet; 
         string v_currentLogin_userId=userinfo.getUserid();
+        if(Test.isRunningTest()){
+            //do something
+        }
+        list<Account> locationAssingedAccounts=GlobalMethod_Call.getAllRelatedAccounts(v_currentLogin_userId);
+        userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id IN:locationAssingedAccounts];
+        system.debug('userAccDet---'+userAccDet);
+        string v_query='';
+        
         if(inp_Task!=null){
             System.debug('inp_Task'+inp_Task);
             string v_taskId= '%'+inp_Task.Id+'%';
@@ -16,7 +20,7 @@ public without sharing class DocumentCourierDetailController {
             system.debug('v_taskId'+v_taskId);
         }
         
-        list<Document_Handler__c> documenLst = Database.query('SELECT DMS_ID__c,Document_Categories__c,Document_Metadata__c,Document_Name__c,Document_Uploaded__c,Id,Name,Opportunity__c,Physical_Document_Mandatory__c,Physical_Document_Received__c,Review_Required__c,Shipping_Partner__c,Status__c,Task_Id__c,Tracking_Number__c,Transfer_to__c,Transfer_to__r.Name,Upload_Mandatory__c,Document_Metadata__r.Document_Category__c,Document_Metadata__r.Document_Id_Name__c,Document_Id_Value__c,Document_Metadata__r.Document_Name__c,Document_Handler__c.Extended_SObject_RecordId__c,Current_Task_ID__c FROM Document_Handler__c WHERE Status__c =\'Dispatched\' AND Transfer_to__c =:userAccId AND Transfer_to__c !=null AND Tracking_Number__c !=null' + v_query);
+        list<Document_Handler__c> documenLst = Database.query('SELECT DMS_ID__c,Document_Categories__c,Document_Metadata__c,Document_Name__c,Document_Uploaded__c,Id,Name,Opportunity__c,Physical_Document_Mandatory__c,Physical_Document_Received__c,Review_Required__c,Shipping_Partner__c,Status__c,Task_Id__c,Tracking_Number__c,Transfer_to__c,Transfer_to__r.Name,Upload_Mandatory__c,Document_Metadata__r.Document_Category__c,Document_Metadata__r.Document_Id_Name__c,Document_Id_Value__c,Document_Metadata__r.Document_Name__c,Document_Handler__c.Extended_SObject_RecordId__c,Current_Task_ID__c FROM Document_Handler__c WHERE Status__c =\'Dispatched\' AND Transfer_to__c IN:userAccDet AND Transfer_to__c !=null AND Tracking_Number__c !=null' + v_query);
         System.debug('documenLst'+documenLst);
         System.debug('documenLst Size'+documenLst.size());
         wrapperforDocuments prepare = new wrapperforDocuments();
@@ -75,24 +79,24 @@ public without sharing class DocumentCourierDetailController {
     
     @AuraEnabled
     public static wrapperforDocuments docsWithdetails(task inp_Task){
-        Account userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id =:[SELECT Individual.AccountId__c FROM User WHERE Id = :userinfo.getUserid()].Individual.AccountId__c];
-        string v_taskId= '%'+inp_Task.Id+'%';
-        string userAccId=userAccDet.Id;
-        string v_query;
         string v_currentLogin_userId=userinfo.getUserid();
+        list<Account> locationAssingedAccounts=GlobalMethod_Call.getAllRelatedAccounts(v_currentLogin_userId);
+        List<Account> userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id IN:locationAssingedAccounts];
+        string v_taskId= '%'+inp_Task.Id+'%';
+        string v_query;
         if(inp_Task!=null){
             System.debug('inp_Task'+inp_Task);
             v_query = ' AND Document_Sharing_Task_Ids__c LIKE :v_taskId';
         }
         
-        list<Document_Handler__c> documenLst = Database.query('SELECT DMS_ID__c,Document_Categories__c,Document_Metadata__c,Document_Name__c,Document_Uploaded__c,Id,Name,Opportunity__c,Physical_Document_Mandatory__c,Physical_Document_Received__c,Review_Required__c,Shipping_Partner__c,Status__c,Task_Id__c,Tracking_Number__c,Transfer_to__c,Transfer_to__r.Name,Upload_Mandatory__c,Document_Metadata__r.Document_Category__c,Document_Metadata__r.Document_Id_Name__c,Document_Id_Value__c,Document_Metadata__r.Document_Name__c,Document_Handler__c.Extended_SObject_RecordId__c FROM Document_Handler__c WHERE Status__c =\'To Be Handed Over\' AND Transfer_By__c =:userAccId AND Transfer_By__c !=null' + v_query);
+        list<Document_Handler__c> documenLst = Database.query('SELECT DMS_ID__c,Document_Categories__c,Document_Metadata__c,Document_Name__c,Document_Uploaded__c,Id,Name,Opportunity__c,Physical_Document_Mandatory__c,Physical_Document_Received__c,Review_Required__c,Shipping_Partner__c,Status__c,Task_Id__c,Tracking_Number__c,Transfer_to__c,Transfer_to__r.Name,Upload_Mandatory__c,Document_Metadata__r.Document_Category__c,Document_Metadata__r.Document_Id_Name__c,Document_Id_Value__c,Document_Metadata__r.Document_Name__c,Document_Handler__c.Extended_SObject_RecordId__c FROM Document_Handler__c WHERE Status__c =\'To Be Handed Over\' AND Transfer_By__c IN:userAccDet AND Transfer_By__c !=null' + v_query);
         
         System.debug('documenLst--'+documenLst);
         
         wrapperforDocuments prepare = new wrapperforDocuments();
         prepare.documents =documenLst;
         prepare.paybles = new list<Paybale__c>();
-         prepare.modtlist = new list<MODT_Details__c>();
+        prepare.modtlist = new list<MODT_Details__c>();
         for(Document_Handler__c dc:prepare.documents){
             system.debug('dc.Name::'+dc.Document_Metadata__r.Document_Name__c);
             system.debug('dc.Extended_SObject_RecordId__c::'+dc.Extended_SObject_RecordId__c);
@@ -225,19 +229,19 @@ public without sharing class DocumentCourierDetailController {
     
     @AuraEnabled
     public static wrapperforDocuments docsWithdetailsforStorage(task inp_Task){
-        Account userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id =:[SELECT Individual.AccountId__c FROM User WHERE Id = :userinfo.getUserid()].Individual.AccountId__c];
-        string v_taskId= '%'+inp_Task.Id+'%';
-        string userAccId=userAccDet.Id;
-        system.debug('userAccId---'+userAccId);
-        string v_query;
         string v_currentLogin_userId=userinfo.getUserid();
+        list<Account> locationAssingedAccounts=GlobalMethod_Call.getAllRelatedAccounts(v_currentLogin_userId);
+        list<Account> userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id IN:locationAssingedAccounts];
+        string v_taskId= '%'+inp_Task.Id+'%';
+        system.debug('userAccDet---'+userAccDet);
+        string v_query;
         if(inp_Task!=null){
             System.debug('inp_Task'+inp_Task);
             v_query = ' AND Document_Sharing_Task_Ids__c LIKE :v_taskId';
         }
         
         String statusQuery = '\'Document Storage\', \'Physically Stored\'';
-        String queryString = 'SELECT DMS_ID__c, Document_Categories__c, Document_Metadata__c, Document_Name__c, Document_Uploaded__c, Id, Name, Opportunity__c, Physical_Document_Mandatory__c, Physical_Document_Received__c, Review_Required__c, Shipping_Partner__c, Status__c, Task_Id__c, Tracking_Number__c, Transfer_to__c, Transfer_to__r.Name, Upload_Mandatory__c, Document_Metadata__r.Document_Category__c, Document_Metadata__r.Document_Id_Name__c, Document_Id_Value__c, Document_Metadata__r.Document_Name__c, Document_Handler__c.Extended_SObject_RecordId__c, File_Barcode__c, Box_Barcode__c, Date_of_storage__c FROM Document_Handler__c WHERE Status__c IN (' + statusQuery + ') AND Transfer_By__c = :userAccId AND Transfer_By__c != null' + v_query;
+        String queryString = 'SELECT DMS_ID__c, Document_Categories__c, Document_Metadata__c, Document_Name__c, Document_Uploaded__c, Id, Name, Opportunity__c, Physical_Document_Mandatory__c, Physical_Document_Received__c, Review_Required__c, Shipping_Partner__c, Status__c, Task_Id__c, Tracking_Number__c, Transfer_to__c, Transfer_to__r.Name, Upload_Mandatory__c, Document_Metadata__r.Document_Category__c, Document_Metadata__r.Document_Id_Name__c, Document_Id_Value__c, Document_Metadata__r.Document_Name__c, Document_Handler__c.Extended_SObject_RecordId__c, File_Barcode__c, Box_Barcode__c, Date_of_storage__c FROM Document_Handler__c WHERE Status__c IN (' + statusQuery + ') AND Transfer_By__c IN :userAccDet AND Transfer_By__c != null' + v_query;
         List<Document_Handler__c> documenLst = Database.query(queryString);
         //list<Document_Handler__c> documenLst = Database.query('SELECT DMS_ID__c,Document_Categories__c,Document_Metadata__c,Document_Name__c,Document_Uploaded__c,Id,Name,Opportunity__c,Physical_Document_Mandatory__c,Physical_Document_Received__c,Review_Required__c,Shipping_Partner__c,Status__c,Task_Id__c,Tracking_Number__c,Transfer_to__c,Transfer_to__r.Name,Upload_Mandatory__c,Document_Metadata__r.Document_Category__c,Document_Metadata__r.Document_Id_Name__c,Document_Id_Value__c,Document_Metadata__r.Document_Name__c,Document_Handler__c.Extended_SObject_RecordId__c,File_Barcode__c,Box_Barcode__c,Date_of_storage__c FROM Document_Handler__c WHERE Status__c =\'Document Storage\' AND Transfer_By__c =:userAccId AND Transfer_By__c !=null' + v_query);
         System.debug('documenLst--'+documenLst);

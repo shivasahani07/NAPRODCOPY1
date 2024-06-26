@@ -18,7 +18,7 @@ private class DispatchControllerTest {
             Alias = 'standt', Email='standarduser@testorg.com', 
             EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
             LocaleSidKey='en_US', ProfileId = standardProfile.Id, 
-            TimeZoneSidKey='America/Los_Angeles', UserName='Teststandarduser123@testorg.com',
+            TimeZoneSidKey='America/Los_Angeles', UserName='standarduser143@testorg.com',
             IndividualId = testIndividual.Id
         );
         insert testUser;
@@ -78,12 +78,13 @@ private class DispatchControllerTest {
         
     @isTest
     static void testGetDocumentsToBeCouriered() {
-        User testUser = [SELECT Id, name FROM User WHERE Alias = 'standt' LIMIT 1];
-        System.runAs(testUser) {
+         User usr = [Select Id, name From user where UserName='standarduser143@testorg.com'LIMIT 1];
+        Account testAccount = [Select Id From Account Where Name='Test Account' AND Email_Id__c='test@example.com' Limit 1];
+        System.runAs(usr) {
             Test.startTest();
             // Make sure to retrieve a task that is associated with the test user and other criteria
-            Task testTask = [SELECT Id FROM Task WHERE OwnerId = :testUser.Id LIMIT 1];
-            DispatchController.wrapperData result = DispatchController.getDocumentsToBeCouriered(testTask);
+            Task testTask = [SELECT Id FROM Task WHERE OwnerId = :usr.Id LIMIT 1];
+            DispatchController.wrapperData result = DispatchController.getDocumentsToBeCouriered(testTask,testAccount.Id);
             Test.stopTest();
         }
         
@@ -102,7 +103,7 @@ private class DispatchControllerTest {
     @isTest
     static void testUpdateDocumentCourierDetail() {
        Test.startTest();
-        User usr = [Select Id, name From user where UserName='Teststandarduser123@testorg.com'LIMIT 1];
+        User usr = [Select Id, name From user where UserName='standarduser143@testorg.com'LIMIT 1];
          System.debug('usr == >'+usr);
         System.runAs(usr) {
             //insert testUser;
@@ -119,6 +120,12 @@ private class DispatchControllerTest {
         Test.startTest();
         String taskId = [SELECT Id FROM Task LIMIT 1].Id;
         DispatchController.wrapperData result = DispatchController.getWiredDatforReceiver(taskId);
+        Test.stopTest();
+    }
+    @isTest
+    static void testgetUserLocationAccounts() {
+        Test.startTest();
+        DispatchController.getUserLocationAccounts();
         Test.stopTest();
     }
 

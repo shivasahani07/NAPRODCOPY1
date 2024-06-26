@@ -74,6 +74,7 @@ public class Test_TaskCreationNew2 {
         testDeviationStartFromPPTD.Task_Owner_Type__c = 'System';
         testDeviationStartFromPPTD.Task_Owner_Name__c = 'N/A';
         testDeviationStartFromPPTD.Execution_Serial_No__c = String.valueOf(1);
+        
         insert testDeviationStartFromPPTD;
         
         Process_path__c testMainPath = new Process_Path__c();
@@ -152,7 +153,7 @@ public class Test_TaskCreationNew2 {
         testPAPD.isActive__c = true;
         testPAPD.Process_Path_Task_Detail_Start__c = testDeviationStartFromPPTD.Id;
         testPAPD.Process_Attribute__c = paRec.Id;
-        testPAPD.Process_Path_Type__c = 'Child Path';
+        testPAPD.Process_Path_Type__c = 'Repeat Path';
         testPAPD.Process_Path__c = testMainPath.Id;
         testPAPD.Process_Path_Task_Detail_End__c = testEndPathPPTD.Id;
         testPAPD.Process_Execution_Condition__c = testPEC.Id;
@@ -167,6 +168,7 @@ public class Test_TaskCreationNew2 {
         InitiatedTask.Process_Attribute__c = paRec.Id;
         InitiatedTask.Process_Path_Task_Detail__c = testDeviationStartFromPPTD.Id;
         InitiatedTask.Process_Path_Deviation_Ids__c = testPAPD.Id;
+        InitiatedTask.Current_Attempt_No__c = 1;
         Insert InitiatedTask;
         
         Task StartTask = new Task();
@@ -187,6 +189,7 @@ public class Test_TaskCreationNew2 {
         StartTask.Process_Path_Deviation_Initiated_Task_Id__c = StartTask.Id;
         StartTask.Process_Path_Deviation_End_Task_Id__c = StartTask.Id;
         StartTask.Process_Path_Initiated_Task_Id__c = StartTask.Id;
+        StartTask.Current_Attempt_No__c = 1;
         update StartTask;
         
         

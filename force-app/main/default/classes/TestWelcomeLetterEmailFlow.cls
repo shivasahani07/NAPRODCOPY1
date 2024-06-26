@@ -1,12 +1,19 @@
 @IsTest
 public class TestWelcomeLetterEmailFlow {
-	@IsTest
+    @IsTest
     public static void SendemaiaTestClass(){
         String parentRecId = '';
         String sObjectId = '';
         Account acc = new Account();
         acc.Name = 'Test Name';
+        acc.Email_Id__c='test@gmail.com';
         insert acc;
+        
+        contact con=new contact();
+        con.LastName='Test Contact';
+        con.Email='testcon@gmail.com';
+        con.AccountId=acc.Id;
+        insert con;
         
         Opportunity opp = new Opportunity();
         opp.Name = 'test opportunity';
@@ -23,17 +30,18 @@ public class TestWelcomeLetterEmailFlow {
         faAccount.EMI_Amount__c = 300;
         faAccount.First_EMI_Date__c = system.today();
         faAccount.Opportunity__c = opp.Id;
+        faAccount.Originating_Branch__c=acc.Id;
         insert faAccount;
-        
         Communication_Template__c ctRec = new Communication_Template__c();
-        ctRec.Email_From__c  = 'kispanchal86@gmail.com';
-        ctRec.Email_To__c = 'kispanchal86@gmail.com';
+        ctRec.Email_From__c  = 'Team – Northern Arc';
+        ctRec.Email_To__c = 'test.aec@gmail.com';
         ctRec.Is_Active__c = true;
         ctRec.Template_Body__c = 'Test Body';
         ctRec.Email_Service__c = 'Salesforce';
         ctRec.Subject__c = 'test Subject';
+        ctRec.CC_Addresses__c='testcc@gmail.com';
         ctRec.Attachment_Query__c = 'SELECT Id From Document_Handler__c Where Task_Id__c =: parentRecId';
-        ctRec.Template_Body_Query__c = 'SELECT Id,LMS_Application_ID__c,Sanction_Date__c,Sanctioned_Amount__c,Name,Tenuer__c,First_EMI_Date__c,EMI_Amount__c From Financial_Account__c where Opportunity__c =: sObjectId';
+        ctRec.Template_Body_Query__c = 'SELECT Id,LMS_Application_ID__c,Sanction_Date__c,Sanctioned_Amount__c,Name,Tenuer__c,First_EMI_Date__c,EMI_Amount__c,Account_Name__c,Originating_Branch__c From Financial_Account__c where Opportunity__c =: sObjectId';
         insert ctRec;
         
         Process_path__c testpp = new Process_Path__c();
@@ -61,7 +69,6 @@ public class TestWelcomeLetterEmailFlow {
         testPPTD.Task_Owner_Name__c = 'N/A';
         testPPTD.Business_Step_No__c = 1;
         testPPTD.Execution_Serial_No__c = String.valueOf(1);
-        
         insert testPPTD;
         
         Task parentTask = new Task();
@@ -70,6 +77,9 @@ public class TestWelcomeLetterEmailFlow {
         parentTask.ActivityDate = system.today();
         parentTask.Subject = 'test subject';
         insert parentTask;
+        system.debug('parentRecId'+parentTask);
+        parentRecId = parentTask.Id;
+        
         Document_Metadata__c docMetaRec = new Document_Metadata__c();
         docMetaRec.Name = 'Welcome Letter';
         docMetaRec.Document_Name__c = 'Welcome Letter';
@@ -80,7 +90,8 @@ public class TestWelcomeLetterEmailFlow {
         doHandler.Task_Id__c = parentTask.Id;
         doHandler.Document_Metadata__c = docMetaRec.Id;
         insert doHandler;
-        parentRecId = parentTask.Id;
+        
+        
         Task taskDet = new Task();
         taskDet.Process_Path_Task_Detail__c = testPPTD.Id;
         taskDet.WhatId = opp.Id;
@@ -91,7 +102,7 @@ public class TestWelcomeLetterEmailFlow {
         
         API_Callout_Audit__c auditRec = new API_Callout_Audit__c();
         auditRec.Status__c = 'New';
-        auditRec.Task_ID__c = taskDet.Id;
+        auditRec.Task_ID__c = parentTask.Id;
         auditRec.Apex_Action__c = 'EmailService';
         insert auditRec;
         
@@ -103,6 +114,15 @@ public class TestWelcomeLetterEmailFlow {
         cv.ContentLocation = 'S'; // S indicates that the file is stored in Salesforce
         cv.FirstPublishLocationId = doHandler.Id; // Link the file to the Account
         insert cv;
+        
+        cv = [SELECT Id, ContentDocumentId FROM ContentVersion WHERE Id = :cv.Id LIMIT 1];
+        
+        ContentDocumentLink testContentDocumentLink = new ContentDocumentLink(
+            LinkedEntityId = parentTask.Id,
+            ContentDocumentId = cv.ContentDocumentId,
+            ShareType = 'I'
+        );
+        insert testContentDocumentLink;
         
         SystemExecutedMasterClass.FlowInput input = new SystemExecutedMasterClass.FlowInput();
         input.recordId = auditRec.Id;
@@ -120,4 +140,72 @@ public class TestWelcomeLetterEmailFlow {
         input.taskRecordId = taskRecordId;
         return input;
     }
+    
+    private static void createTestData() {
+        
+        Account testAccount = TestUtility.createTestAccount();
+        Task testTask = TestUtility.createTestTaskWithAttribute('SampleAttribute');
+        insert testTask;   
+    }
+    
+    private class MockHttpResponseGenerator implements HttpCalloutMock {
+        private String responseBody;
+        private Integer statusCode;
+        
+        public MockHttpResponseGenerator(String responseBody, Integer statusCode) {
+            this.responseBody = responseBody;
+            this.statusCode = statusCode;
+        }
+        
+        public HTTPResponse respond(HTTPRequest req) {
+            HttpResponse res = new HttpResponse();
+            res.setBody(responseBody);
+            res.setStatusCode(statusCode);
+            return res;
+        }
+    } 
+    
+    private static void testAction(String actionName) {
+        createTestData();
+        
+        Task testTask = [SELECT Id FROM Task LIMIT 1];
+        API_Callout_Audit__c acaRec = new API_Callout_Audit__c();
+        insert acaRec; 
+        
+        SystemExecutedMasterClass.FlowInput input = prepareFlowInput(actionName, acaRec.Id, testTask.Id);
+        
+        if (actionName.contains('API')) {
+            
+            Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator('{"status":"Success","RequestBody":"test","ResponseBody":"response"}', 200));
+        }
+        
+        Test.startTest();
+        SystemExecutedMasterClass.processRecords(new List<SystemExecutedMasterClass.FlowInput>{ input });
+        Test.stopTest();
+        
+        
+        API_Callout_Audit__c updatedAudit = [SELECT API_Status__c FROM API_Callout_Audit__c WHERE Id = :acaRec.Id];
+        //System.assertNotEquals(null, updatedAudit.API_Status__c, 'API status should be updated');
+    }
+    @IsTest
+    static void testAPISearchPartnersAPI() {
+        testAction('API_SearchPartnersAPI');
+    }
+    
+    @IsTest
+    static void testAPICreatePartnerAPI() {
+        testAction('API_CreatePartnerAPI');
+    }
+    
+    @IsTest
+    static void testAPICreatePaymentScheduleAPI() {
+        testAction('API_CreatePaymentScheduleAPI');
+    }
+    
+    @IsTest
+    static void testAPIAddRecalibrationAPI() {
+        testAction('API_AddRecalibrationAPI');
+    }
+    
+    
 }

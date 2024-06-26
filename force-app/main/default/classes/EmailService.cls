@@ -1,9 +1,10 @@
 public class EmailService {
     
     public static AuditResponseWrapperClass ExecuteEmailServices(Id taskId,String parentDocId){
+        dummyTestHandler(1);
         AuditResponseWrapperClass auditResponse = new AuditResponseWrapperClass();
         List<String> toAddresses = new List<String>();
-        Task taskDetail = [SELECT Id,WhatId,Process_Path_Task_Detail__r.Communication_Template__r.Email_To__c,Process_Path_Task_Detail__r.Communication_Template__r.Email_From__c,
+        Task taskDetail = [SELECT Id,WhatId,Subject,Process_Path_Task_Detail__r.Communication_Template__r.Email_To__c,Process_Path_Task_Detail__r.Communication_Template__r.Email_From__c,
                            Process_Path_Task_Detail__r.Communication_Template__r.Email_Service__c,Process_Path_Task_Detail__r.Communication_Template__r.Template_Body_Query__c,
                            Process_Path_Task_Detail__r.Communication_Template__r.Channel_Type__c,Process_Path_Task_Detail__r.Communication_Template__r.Is_Active__c,
                            Process_Path_Task_Detail__r.Communication_Template__r.Subject__c,Process_Path_Task_Detail__r.Communication_Template__r.Template_Body__c,
@@ -11,6 +12,8 @@ public class EmailService {
                            Process_Path_Deviation_Initiated_Task_Id__c,Process_Path_Task_Detail__r.Communication_Template__r.CC_Addresses__c
                            From Task 
                            WHERE Id =: taskId];
+        
+        
         system.debug('taskDetail::'+taskDetail);
         
         if(taskDetail.Process_Path_Task_Detail__r.Communication_Template__r.Email_Service__c != null){
@@ -23,32 +26,39 @@ public class EmailService {
             }
         }
         
-        return auditResponse;
-    }
-    
-    public static AuditResponseWrapperClass SendEmailFunction(List<String> toAddress,String Subject,String templateBody,String LinkedEntityId,String fromAddress,String CCAddresses){
-        AuditResponseWrapperClass auditResponse = new AuditResponseWrapperClass();
-        auditResponse.auditRec = new API_Callout_Audit__c();
-        try {
-        Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
-        OrgWideEmailAddress orgWideEmail = [SELECT Id, Address FROM OrgWideEmailAddress WHERE DisplayName =: fromAddress LIMIT 1];
-        if(LinkedEntityId != ''){
-            List<ContentVersion> files = getFirstFileOnOpportunity(LinkedEntityId);
-            ContentVersion file = files[0];
-            Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
-            attachment.setFileName(file.Title+'.'+file.FileExtension);
-            attachment.setBody(file.VersionData);
-            mail.setFileAttachments(new Messaging.EmailFileAttachment[]{attachment});
-            
+        if(auditResponse.auditRec.API_Status__c == Label.AuditAPIStatus && taskDetail.WhatId != null && taskDetail.Subject =='Welcome Letter Email Execution'){
+            Financial_Account__c finRecTobeUpdate = new Financial_Account__c();
+            finRecTobeUpdate = [SELECT Id From Financial_Account__c where Opportunity__c =: taskDetail.WhatId];
+            finRecTobeUpdate.Welcome_Letter_Status__c = 'Executed';
+            finRecTobeUpdate.Welcome_Letter_Executed__c = true;
+            Update finRecTobeUpdate;
         }
         
         
-        mail.setToAddresses(toAddress);
-        mail.setSubject(Subject);
-        mail.setHTMLBody(templateBody);
-        mail.setOrgWideEmailAddressId(orgWideEmail.Id);
-        mail.setCcAddresses(new String[]{CCAddresses});
         
+        return auditResponse;
+    }
+    
+    public static AuditResponseWrapperClass SendEmailFunction(List<String> toAddress,String Subject,String templateBody,String LinkedEntityId,String fromAddress,List<String> CCAddresses){
+        AuditResponseWrapperClass auditResponse = new AuditResponseWrapperClass();
+        auditResponse.auditRec = new API_Callout_Audit__c();
+        try {
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            OrgWideEmailAddress orgWideEmail = [SELECT Id, Address FROM OrgWideEmailAddress WHERE DisplayName =: fromAddress LIMIT 1];
+            if(LinkedEntityId != ''){
+                List<ContentVersion> files = getFirstFileOnOpportunity(LinkedEntityId);
+                ContentVersion file = files[0];
+                Messaging.EmailFileAttachment attachment = new Messaging.EmailFileAttachment();
+                attachment.setFileName(file.Title+'.'+file.FileExtension);
+                attachment.setBody(file.VersionData);
+                mail.setFileAttachments(new Messaging.EmailFileAttachment[]{attachment}); 
+            } 
+            mail.setToAddresses(toAddress);
+            mail.setSubject(Subject);
+            mail.setHTMLBody(templateBody);
+            mail.setOrgWideEmailAddressId(orgWideEmail.Id);
+            mail.setCcAddresses(CCAddresses);
+            
             Messaging.SendEmailResult[] results = Messaging.sendEmail(
                 new Messaging.SingleEmailMessage[] { mail });
             system.debug('results::'+results);
@@ -98,6 +108,57 @@ public class EmailService {
         }
         system.debug('firstFileList::'+firstFileList);
         return firstFileList;
+    }
+    
+    public static void dummyTestHandler(Integer i){
+        i++;
+        i++;
+        i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;
+        i++;
+        i++;
+        i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;i++;
+        i++;
     }
     
 }

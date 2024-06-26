@@ -1,18 +1,26 @@
 global class API_updateStatus {
     
-    public static httpresponse updateStatusByTransactionId(String transactionId){
-        // Specify the URL with the query parameter
-        String url =System.Label.FinancialEntityACDetails_PennyDropCallOutEndPoint+transactionId;
-        
+    // Method to update status by transaction ID
+    public static HttpResponse updateStatusByTransactionId(String transactionId) {
+        // Construct the URL with the transaction ID
+        PartnerCin__mdt partnerCinRecord = PartnerCin__mdt.getInstance('updateStatus');
+        String API_KEY = partnerCinRecord.apiKey__c;
+        String GROUP_KEY = partnerCinRecord.groupKey__c;
+        String url =  partnerCinRecord.endPoint__c+ transactionId;
         // Create an HTTP request object
         HttpRequest request = new HttpRequest();
         request.setEndpoint(url);
         request.setMethod('GET');
+        request.setHeader('Accept', '*/*');
+        request.setHeader('API-KEY', API_KEY);
+        request.setHeader('GROUP-KEY', GROUP_KEY);
         request.setHeader('Content-Type', 'application/json');
+        system.debug('request---'+request);
         
         Http http = new Http();
         HttpResponse response;
         try {
+            // Send the HTTP request and get the response
             response = http.send(request);
             // Check if the request was successful
             if (response.getStatusCode() == 200) {
@@ -24,70 +32,107 @@ global class API_updateStatus {
         } catch (Exception e) {
             // Handle exception
             System.debug('Exception: ' + e.getMessage());
+            response = null; // Ensure response is null in case of an exception
         }
         return response;
     }
     
-    public static string processRequestdata(string taskRecordId){
-        auditwrapper auditwarp = new auditwrapper();
+    // Method to process the request data
+    public static String processRequestData(String taskRecordId) {
+        auditwrapper auditWarp = new auditwrapper();
         PeenyDropStatusWrapper wrapperResponse = new PeenyDropStatusWrapper();
-        string bankDetailsSFDXId;
+        String bankDetailsSFDXId;
         HttpResponse response;
         
-        List<Task> tasks = [Select id, Attribute1__c from Task Where Id = :taskRecordId];
-        if (!tasks.isEmpty() && tasks[0].Attribute1__c != null) {
-            bankDetailsSFDXId = tasks[0].Attribute1__c;
-            List<Financial_Entity_AC_Detail__c> backDetailsList = [SELECT id, Name, Verification_Status__c, TransactionId__c, BatchId__c FROM Financial_Entity_AC_Detail__c WHERE Id = :bankDetailsSFDXId];
-            if (!backDetailsList.isEmpty()) {
-                Financial_Entity_AC_Detail__c backDetails = backDetailsList[0];
-                try{
-                    response = updateStatusByTransactionId(backDetails.TransactionId__c);
-                    if (response != null && response.getStatusCode() == 200) {
-                        wrapperResponse = (PeenyDropStatusWrapper) JSON.deserialize(response.getBody(), PeenyDropStatusWrapper.class);
-                        try {
-                            Financial_Entity_AC_Detail__c updateBankDetailsStatus = new Financial_Entity_AC_Detail__c();
-                            updateBankDetailsStatus.Verification_Status__c = wrapperResponse.status;
-                            updateBankDetailsStatus.id = bankDetailsSFDXId;
-                            update updateBankDetailsStatus;
-                            auditwarp.ResponseBody = string.valueOf(response.getBody());
-                            auditwarp.status = Label.AuditAPIStatus;
-                        } catch(Exception e) {
-                            System.debug('Exception occurred: ' + e.getMessage());
-                            System.debug('Exception occurred at line Number: ' + e.getLineNumber());
-                            auditwarp.CallOutApiProcessResult = e.getMessage();
-                        }
-                    } else {
-                        System.debug('Error Response: ' + response.getBody());
-                        auditwarp.ResponseBody = response.getBody();
-                        auditwarp.status = Label.AuditAPIFailedStatus;
-                    }
-                }catch(Exception e){
-                    System.debug('Exception occurred: ' + e.getMessage());
-                            System.debug('Exception occurred at line Number: ' + e.getLineNumber());
-                            auditwarp.CallOutApiProcessResult = e.getMessage();
-                }
-                
+        Task taskRec = [SELECT Id, Attribute1__c FROM Task WHERE Id = :taskRecordId];
+        if (taskRec != null && taskRec.Attribute1__c != null) {
+            bankDetailsSFDXId = taskRec.Attribute1__c;
+            Financial_Entity_AC_Detail__c backDetails = [SELECT Id, Name, Verification_Status__c, TransactionId__c, BatchId__c FROM Financial_Entity_AC_Detail__c WHERE Id = :bankDetailsSFDXId];
+            
+            response = updateStatusByTransactionId(backDetails.TransactionId__c);
+            System.debug('response::: ' + response);
+            if (response == null) {
+                auditWarp.status = Label.AuditAPIFailedStatus;
+                System.debug('auditWarp - Batch ID: ' + auditWarp);
             } else {
-                System.debug('No Financial_Entity_AC_Detail__c found for ID: ' + bankDetailsSFDXId);
+                if (response.getStatusCode() == 200) {
+                    wrapperResponse = (PeenyDropStatusWrapper) JSON.deserialize(response.getBody(), PeenyDropStatusWrapper.class);
+                    try {
+                        Financial_Entity_AC_Detail__c updateBankDetailsStatus = new Financial_Entity_AC_Detail__c();
+                        // Updating bank details status
+                        updateBankDetailsStatus.Verification_Status__c = wrapperResponse.status;
+                        updateBankDetailsStatus.Id = bankDetailsSFDXId;
+                        update updateBankDetailsStatus;
+                        
+                        auditWarp.ResponseBody = String.valueOf(response.getBody());
+                        auditWarp.status = Label.AuditAPIStatus;
+                    } catch (Exception e) {
+                        System.debug('Exception occurred: ' + e.getMessage());
+                        System.debug('Exception occurred at line Number: ' + e.getLineNumber());
+                        auditWarp.processingDMLData = e.getMessage();
+                        auditWarp.status = Label.AuditAPIFailedStatus;
+                    }
+                } else {
+                    // Handle error response
+                    System.debug('Error Response: ' + response.getBody());
+                    auditWarp.ResponseBody = response.getBody();
+                    auditWarp.status = Label.AuditAPIFailedStatus;
+                }
             }
         } else {
-            System.debug('No Task record found or Attribute1__c is null for TaskId: ' + taskRecordId);
+            auditWarp.ResponseBody = 'Invalid task record or missing Attribute1__c';
+            auditWarp.status = Label.AuditAPIFailedStatus;
         }
-        return JSON.serialize(auditwarp);
+        
+        return JSON.serialize(auditWarp);
     }
-
     
-    Public class auditwrapper{
-        Public String status;
+    // Wrapper class for audit information
+    public class auditwrapper {
+        public String status;
         public String ResponseBody;
-        public string RequestBody; 
-        public string CallOutApiProcessResult;
+        public String RequestBody; 
+        public String processingDMLData;
     }
     
+    // Wrapper class for the penny drop status response
     public class PeenyDropStatusWrapper {
         public String status;
         public String timestamp;
         public String message;
         public List<String> errors;
     }
+    
+    public class PennyDropResponseWrapper {
+        public String batchId;
+        public String externalRefId;
+        public String customerId;
+        public String transactionId;
+        public String status;
+        public String errorCode;
+        public String errorDesc;
+        public String transactionType;
+        public String paymentMode;
+        public Pennydrop pennyDrop;
+        public TransactionInfo transactionInfo;
+        
+    }
+    public class Pennydrop {
+        public String customerName;
+        public String givenNameInBank;
+        public String pennyDropStatus;
+        public Datetime validatedOn;
+        public Boolean isEligibleForPayout;
+    }
+    
+    public class TransactionInfo {
+        public Decimal amount;
+        public String fromAccount;
+        public String cmsRefNo;
+        public String coreRefNo;
+        public Long transactionInitiatedOn;
+        public String transactionStatus;
+    }
+    
+    
 }

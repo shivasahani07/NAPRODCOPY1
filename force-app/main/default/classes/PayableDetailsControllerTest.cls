@@ -109,12 +109,84 @@ private class PayableDetailsControllerTest {
 
     @isTest
     static void testGetRelatedContactAccount() {
+        Process_Path__c testPP = new Process_Path__c();
+        testPP.isActive__c = true;
+        testPP.Name = 'Opp - NuScoreRecalibrationInvoiceCreation P0';
+        insert testPP; 
+        
+        task parentTask =TestUtility.CreateTaskInstance();
+        parentTask.Subject = 'Penny Drop - API Call Out';
+        insert parentTask;
+        
+        Process_Task_Detail__c mockProcessTaskDetail = new Process_Task_Detail__c(Subject__c = 'Penny Drop - API Call Out');
+        insert mockProcessTaskDetail;
+        
+        Process_Path_Task_Detail__c pptDetail = new Process_Path_Task_Detail__c(
+            Subject__c = 'Manual Penny Drop - API Call Out',
+            Process_Path__c = testPP.Id,
+            Process_Task_Detail__c = mockProcessTaskDetail.Id,
+            Business_Step_No__c = 1,
+             Manual_API_Call_Out__c=true,
+            Execution_Serial_No__c = '1',
+            Task_Owner_Type__c = 'System',
+            Task_Owner_Name__c = 'Test System',
+            isActive__c = true
+        );
+        insert pptDetail;
+        
+        Task tsk = new Task();
+        tsk.Process_Path_Task_Detail__c = pptDetail.Id;
+        tsk.Subject = 'Penny Drop';
+        tsk.Status = 'Open';
+        tsk.Priority = 'Normal';
+        tsk.ActivityDate = System.today();
+        tsk.Parent_Task_Id__c=parentTask.id;
         Test.startTest();
         Financial_Account__c testFA = TestUtility.CreateFinancialAccountInstance();
-        PayableDetailsController.getRelatedContactAccount(testFA.Id);
+        PayableDetailsController.getRelatedContactAccount(testFA.Id,'Penny Drop - API Call Out',parentTask.id);
         Test.stopTest();
     }
-
+    
+    @isTest
+    static void getAllRelatedChildTaskWithPPtdTest(){
+        Process_Path__c testPP = new Process_Path__c();
+        testPP.isActive__c = true;
+        testPP.Name = 'Opp - NuScoreRecalibrationInvoiceCreation P0';
+        insert testPP; 
+        
+        task parentTask =TestUtility.CreateTaskInstance();
+        parentTask.Subject = 'Manual Penny Drop - API Call Out';
+        insert parentTask;
+        
+        Process_Task_Detail__c mockProcessTaskDetail = new Process_Task_Detail__c(Subject__c = 'Penny Drop - API Call Out');
+        insert mockProcessTaskDetail;
+        
+        Process_Path_Task_Detail__c pptDetail = new Process_Path_Task_Detail__c(
+            Subject__c = 'Manual Penny Drop - API Call Out',
+            Manual_API_Call_Out__c=true,
+            Process_Path__c = testPP.Id,
+            Process_Task_Detail__c = mockProcessTaskDetail.Id,
+            Business_Step_No__c = 1,
+            Execution_Serial_No__c = '1',
+            Task_Owner_Type__c = 'System',
+            Task_Owner_Name__c = 'Test System',
+            isActive__c = true
+        );
+        insert pptDetail;
+        
+        Task tsk = new Task();
+        tsk.Process_Path_Task_Detail__c = pptDetail.Id;
+        tsk.Subject = 'Manual Penny Drop - API Call Out';
+        tsk.Status = 'Open';
+        tsk.Priority = 'Normal';
+        tsk.ActivityDate = System.today();
+        tsk.Parent_Task_Id__c=parentTask.id;
+        insert tsk;
+        Test.startTest();
+        PayableDetailsController.getAllRelatedChildTaskWithPPtd('Penny Drop - API Call Out',parentTask.id);
+       Test.stopTest();
+    }
+    
     @isTest
     static void testUpsertMODTRecords() {
         Test.startTest();
@@ -264,7 +336,6 @@ private class PayableDetailsControllerTest {
     @isTest
     static void testGetDependentPicklistValues() {
         Test.startTest();
-        // Using Account and Industry field as an example; adjust based on your org's schema
         //Map<Object, List<String>> result = PayableDetailsController.getDependentPicklistValues('Process_Attribute__c', 'Case_Sub_Category__c');
         Test.stopTest();
         // Normally, you would use System.assert methods to validate the result, 
@@ -276,7 +347,7 @@ private class PayableDetailsControllerTest {
         
          Test.startTest();
         // Using Account and Industry field as an example; adjust based on your org's schema
-        //Map<Object, List<String>> result = PayableDetailsController.getDependentPicklistValues('Account', 'Industry');
+        Map<Object, List<String>> result = PayableDetailsController.getDependentPicklistValues('Account', 'Industry');
         PayableDetailsController.createAccount('Test Name','testing@mail.com','9876543210');
         Test.stopTest();
     }

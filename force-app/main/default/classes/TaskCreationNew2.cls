@@ -43,7 +43,7 @@ public class TaskCreationNew2 {
         
         if (inp_taskids.size() > 0)
         {
-            v_query = 'select id,Subject,whoid,whatid,Process_Attribute__c, Process_Attribute__r.Object_Type__c,Process_Attribute__r.Process_Attribute_Path_Deviation__r.Process_Path__c,Process_Path_Task_Detail__c,Process_Path_Deviation_Ids__c,Process_Path_Deviation_Ids_Executed__c,Process_Attribute_Path_Deviation__c,Process_Attribute_Path_Deviation__r.Id,Process_Attribute_Path_Deviation__r.Process_Path_Task_Detail_Start__c,Process_Attribute_Path_Deviation__r.Process_Path_Task_Detail_End__c,Process_Attribute_Path_Deviation__r.Process_Path_Type__c,Process_Path_Deviation_Initiated_Task_Id__c,Process_Path_Initiated_Task_Id__c,Process_Path_Deviation_End_Task_Id__c,Execution_Depended_on_Task_Ids__c,Execution_Depended_Closed_Task_Ids__c,Process_Share_Document_Task_Ids__c,Has_Child_Task__c,Parent_Task_Id__c  from ' +  inp_ObjectType +' where id in : inp_taskids'; 
+            v_query = 'select id,Subject,whoid,whatid,Process_Attribute__c, Process_Attribute__r.Object_Type__c,Process_Attribute__r.Process_Attribute_Path_Deviation__r.Process_Path__c,Process_Path_Task_Detail__c,Process_Path_Deviation_Ids__c,Process_Path_Deviation_Ids_Executed__c,Process_Attribute_Path_Deviation__c,Process_Attribute_Path_Deviation__r.Id,Process_Attribute_Path_Deviation__r.Process_Path_Task_Detail_Start__c,Process_Attribute_Path_Deviation__r.Process_Path_Task_Detail_End__c,Process_Attribute_Path_Deviation__r.Process_Path_Type__c,Process_Path_Deviation_Initiated_Task_Id__c,Process_Path_Initiated_Task_Id__c,Process_Path_Deviation_End_Task_Id__c,Execution_Depended_on_Task_Ids__c,Execution_Depended_Closed_Task_Ids__c,Process_Share_Document_Task_Ids__c,Has_Child_Task__c,Parent_Task_Id__c,Current_Attempt_No__c  from ' +  inp_ObjectType +' where id in : inp_taskids'; 
             out_sobject.putall(new Map<string, sObject>((List<sObject>)Database.query(v_query)));
         }
         
@@ -67,6 +67,7 @@ public class TaskCreationNew2 {
             {
                 system.debug(lv_sobject.getsobject('Process_Attribute__r'));
                 string s_PPDevid = (string) lv_sobject.getsobject('Process_Attribute__r').get('Process_Attribute_Path_Deviation__c');
+                system.debug('s_PPDevid::--'+s_PPDevid);
                 s_PPDids.add(s_PPDevid);
                 string s_PAid =  (string) lv_sobject.get('Process_Attribute__c');
                 s_PAids.add(s_PAid);
@@ -519,11 +520,21 @@ break;
                                 }
                                 
                             }
-                            
+                            if (lv_PPD.get('Process_Path_Type__c') == 'Repeat Path')                                                       
+                            {
+                                lv_task.Execution_Depended_Closed_Task_Ids__c = StringToStringDeDup(inpSobjectId);
+                                lv_task.Execution_Depended_on_Task_Ids__c = StringToStringDeDup(inpSobjectId);
+                                lv_task.Has_Child_Task__c =  (boolean) lv_TriggeringSobject.get('Has_Child_Task__c');
+                                lv_task.Process_Path_Deviation_End_Task_Id__c = (string) lv_TriggeringSobject.get('Process_Path_Deviation_End_Task_Id__c');
+                                lv_task.Process_Path_Deviation_Ids__c = (string) lv_TriggeringSobject.get('Process_Path_Deviation_Ids__c');
+                                lv_task.Process_Path_Task_Detail__c = (string) lv_TriggeringSobject.get('Process_Path_Task_Detail__c');
+                                lv_task.Process_Path_Initiated_Task_Id__c = StringToStringDeDup((string) lv_TriggeringSobject.get('Process_Path_Task_Detail__c'));
+                                lv_task.Current_Attempt_No__c = (decimal) lv_TriggeringSobject.get('Current_Attempt_No__c') + 1;
+								lv_task.Subject = lv_task.Subject + ' - ' + lv_task.Current_Attempt_No__c;                            }
                             
                         }
                         lv_task.id = null;
-                        system.debug(lv_task);
+                        system.debug('lv_task=>'+lv_task);
                         map_new_task.put(inpSobjectId+'-'+lv_task.Process_Path_Task_Detail__c,lv_task);
                         
                         system.debug(map_new_task);

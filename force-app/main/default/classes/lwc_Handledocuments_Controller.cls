@@ -374,7 +374,7 @@ public without sharing class lwc_Handledocuments_Controller {
     }
     
     @AuraEnabled
-    public static UploadWrapper uploadFile(String base64, String filename, String recordId,string uploadedTaskId) {
+    public static UploadWrapper uploadFile(String base64, String filename, String recordId,string uploadedTaskId,string dmspath) {
         UploadWrapper UW = new UploadWrapper();
         Map<Id,List<Map<string,string>>> DocumentIdRelatedToDHId  =new Map<Id,List<Map<string,string>>>();
         try{
@@ -382,7 +382,7 @@ public without sharing class lwc_Handledocuments_Controller {
             ContentDocumentLink cdl = createContentLink(cv.Id, recordId);
             if (cv == null || cdl == null) { return null; }  
             
-            UW = UpdateDMSId(cdl.ContentDocumentId,recordId,filename,uploadedTaskId); 
+            UW = UpdateDMSId(cdl.ContentDocumentId,recordId,filename,uploadedTaskId,dmspath); 
         }catch(DMLException e) {
             System.debug('Exception type caught: ' + e.getTypeName());    
             System.debug('Message: ' + e.getMessage());    
@@ -431,8 +431,9 @@ public without sharing class lwc_Handledocuments_Controller {
     }
     
     @AuraEnabled
-    Public static UploadWrapper UpdateDMSId(String uploadeFilePath,String uploadedrecId,string filename,string uploadedTaskId){
+    Public static UploadWrapper UpdateDMSId(String uploadeFilePath,String uploadedrecId,string filename,string uploadedTaskId,string dmspath){
                  UploadWrapper uw=new UploadWrapper();
+                 string Documentsystem;
         try{
             Document_Handler__c dhrecord = [Select Id,Document_Metadata__r.Is_DocumentId_Mandatory__c,Account__c,Payable__c,MODT_Details__c,Opportunity__c,Process_Attribute_Dcoument_Detail__r.Is_Alternate_Document_Upload_Applicable__c,Is_Alternate_Document_Uploded__c,Document_Id_Value__c,Exempted__c,Extended_SObject_RecordId__c,Document_SLA__c,Comment_History__c,Process_Attribute_Dcoument_Detail__r.Is_New_Document__c,Status__c,Physical_Document_Mandatory__c,Description__c,Physical_Document_Received__c,Document_Metadata__c,Upload_Mandatory__c,Task_Id__c,Review_Required__c,Document_Metadata__r.Document_Category__c,
                                             Document_Metadata__r.Document_Name__c,Document_Metadata__r.Description__c,Reviewer_Name__c,Process_Attribute_Dcoument_Detail__c, 
@@ -440,7 +441,8 @@ public without sharing class lwc_Handledocuments_Controller {
                                             Process_Attribute_Dcoument_Detail__r.Reviewer_Name__c,Process_Attribute_Dcoument_Detail__r.Reviewer_Type__c,DMS_Document_Path__c From Document_Handler__c Where Id=:uploadedrecId];
             
             dhrecord.DMS_Document_Path__c=uploadeFilePath;
-            dhrecord.DMS_System__c=dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c;
+            dhrecord.DMS_System__c= dmspath!=null ? dmspath: dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c;
+            Documentsystem= dmspath!=null ? dmspath: dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c;
             if(dhrecord.Upload_Mandatory__c == true && dhrecord.DMS_Document_Path__c==null){
                 dhrecord.Status__c = 'Document Upload Pending';
             }else if(dhrecord.Upload_Mandatory__c == true && ((dhrecord.Physical_Document_Mandatory__c == true && dhrecord.Physical_Document_Received__c==false))){
@@ -455,7 +457,7 @@ public without sharing class lwc_Handledocuments_Controller {
                 dhrecord.Status__c = 'Received';
             }
             Update dhrecord;
-            uw.DocumentIdRelatedToDHId=CreateDocumentHandlerHistory(filename,uploadeFilePath,uploadedrecId,uploadedTaskId);
+            uw.DocumentIdRelatedToDHId=CreateDocumentHandlerHistory(filename,uploadeFilePath,uploadedrecId,uploadedTaskId,Documentsystem);
             uw.Dhrecord=dhrecord;
             uw.uplodedRecordId=uploadeFilePath;
             uw.DocHandlerHistory=[Select Id,File_Name__c,DMS_System_Name__c,Document_Path__c,Document_Handler__c,CreatedBy.Name,CreatedDate,Task_Id__c From Document_Handler_History__c Where Document_Handler__c=:uploadedrecId];
@@ -471,12 +473,13 @@ public without sharing class lwc_Handledocuments_Controller {
         return uw;
     }
     
-    Public static Map<Id,List<Map<string,string>>> CreateDocumentHandlerHistory(string filename,string pathid_url,string docid,string uploadedTaskId){
+    Public static Map<Id,List<Map<string,string>>> CreateDocumentHandlerHistory(string filename,string pathid_url,string docid,string uploadedTaskId,string dmspath){
         Document_Handler_History__c DHH =new Document_Handler_History__c();
         try{
             DHH.File_Name__c=filename;
             DHH.Document_Path__c=pathid_url;
             DHH.Document_Handler__c=docid;
+            DHH.DMS_System_Name__c=dmspath;
             DHH.task_id__c=uploadedTaskId;
             Insert DHH;
         }catch (Exception e){

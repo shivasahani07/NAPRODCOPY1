@@ -22,6 +22,12 @@
 			<thead>
 				<tr>
 					<th scope="col">
+
+						<div class="slds-truncate" title="Select Recipient Address">Select Dispatching Branch</div>
+
+					</th>
+
+					<th scope="col">
 						<div class="slds-truncate" title="Select Recipient Address">Select Recipient Address</div>
 					</th>
 					<th scope="col">
@@ -45,6 +51,11 @@
 			</thead>
 			<tbody>
 				<tr>
+					<td data-label="Select Dispatching Branch" scope="row">
+						<lightning-combobox options={disPathingBranchMap} value={selectedDispatchingBranch}
+							onchange={dispatchingBranchChnageHandler}>
+						</lightning-combobox>
+					</td>
 
 					<td data-label="Select Recipient Address" scope="row">
 						<lightning-combobox options={accoutIdNameMap} value={selectedRecipant}
@@ -76,10 +87,12 @@
 					</td>
 				<!--template if:true={showComments}-->
 					<td data-label="Comment" scope="row">
-						<lightning-button-icon alternative-text="Comment" data-label="AddComment"
+						<div class="slds-m-top_medium">
+							<lightning-button-icon alternative-text="Comment" data-label="AddComment"
 							variant="brand" class="" size='medium' 
 							icon-name="utility:comments" onclick={Handleonclick} required="true">
 						</lightning-button-icon>
+						</div>
 					</td>
 				<!--/template-->
 				</tr>

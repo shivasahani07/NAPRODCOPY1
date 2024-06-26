@@ -4,10 +4,14 @@ import Id from '@salesforce/user/Id';
 import { getRecord } from 'lightning/uiRecordApi';
 import getDocumentsToBeCouriered from '@salesforce/apex/DispatchController.getDocumentsToBeCouriered';
 import getAllreltedodcs from '@salesforce/apex/DispatchController.getAllreltedodcs';
-import UserNameFIELD from '@salesforce/schema/User.Name';
+ import UserNameFIELD from '@salesforce/schema/User.Name';
+ import USERC_CITY from '@salesforce/schema/User.City';
+ import USERC_STATE from '@salesforce/schema/User.State';
+ import USERC_COUNTRY from '@salesforce/schema/User.Country';
 import updateDocumentCourierDetail from '@salesforce/apex/DispatchController.updateDocumentCourierDetail';
 import getGroupNameandGroupMembers from '@salesforce/apex/DispatchController.getGroupNameandGroupMembers';
 import Child_components_Controller from '@salesforce/apex/Child_components_Controller.UpdateTaskStatus';
+import getUserLocationAccounts from '@salesforce/apex/DispatchController.getUserLocationAccounts';
 
 export default class DispatchComponent extends LightningElement {
 
@@ -38,7 +42,7 @@ export default class DispatchComponent extends LightningElement {
     @track selectedRecipant;
     @track relatedContacsAdd;
     @track senderName;
-    @track senderAddress = 'first corss jp Nagar 570087 Banguluru Karnataka';
+    @track senderAddress;
     @track reciverName;
     @track selectedRecipantRecordSize = 0;
     @track isDispatchButtonDisabled = true;
@@ -57,6 +61,7 @@ export default class DispatchComponent extends LightningElement {
     @track tempAccountDepartmentOptions = [];
     @track DepartmentWithDepartmentMembers = [];
     @track documentRelatedCurrentTaskIds = [];
+    @track disPathingBranchMap;
 
 
     contactData = '';
@@ -67,31 +72,53 @@ export default class DispatchComponent extends LightningElement {
     @track selectedRecipientId;
     showButtonDispatch = false;
 
-    @wire(getRecord, { recordId: Id, fields: [UserNameFIELD] })
+    @wire(getRecord, { recordId: Id, fields: [UserNameFIELD,USERC_CITY,USERC_STATE,USERC_COUNTRY]})
     currentUserInfo({ error, data }) {
+        debugger;
         if (data) {
             this.senderName = data.fields.Name.value;
+            let city = data.fields.City.value ? data.fields.City.value : '';
+            let state = data.fields.State.value ? data.fields.State.value : '';
+            let country = data.fields.Country.value ? data.fields.Country.value : '';
+            this.senderAddress = `${city}${city && state ? ', ' : ''}${state}${(city || state) && country ? ', ' : ''}${country}`;
         } else if (error) {
             this.error = error;
         }
     }
 
     connectedCallback() {
-        this.doInitFromParentComp(this.taskRec);
+        this.getUserRelatedAccounts();
     }
 
-    doInitFromParentComp(taskRec) {
+    getUserRelatedAccounts(){
         debugger;
-        getDocumentsToBeCouriered({ inp_Task: taskRec })
+        getUserLocationAccounts()
+            .then(response =>{
+                console.log('response---',response);
+                this.disPathingBranchMap=response.map(branch =>({
+                    label:branch.Name,
+                    value:branch.Id
+                }))
+                console.log('disPathingBranchMap---',JSON.stringify(this.disPathingBranchMap));
+            })
+            .catch(error=>{
+                console.log('error---',error);
+            })
+    }
+
+    
+
+    doInitFromParentComp(taskRec, accountId) {
+        debugger;
+        getDocumentsToBeCouriered({ inp_Task: taskRec, accountId: accountId })
             .then(response => {
-                //alert('done---');
-                this.wiredDataList = response;
                 console.log('response---', JSON.stringify(response));
+                this.wiredDataList = response;
+
                 const updatedDocuments = response.documents.map(document => {
-                    if (response.paybles != null && response.paybles != undefined && response.paybles.length > 0) {
+                    if (response.paybles) {
                         for (let j = 0; j < response.paybles.length; j++) {
                             if (document.Extended_SObject_RecordId__c === response.paybles[j].Id) {
-                                // Return a new object with the updated properties
                                 return {
                                     ...document,
                                     payeeName: response.paybles[j].Finacial_Entity_Details__r.Name,
@@ -103,10 +130,9 @@ export default class DispatchComponent extends LightningElement {
                             }
                         }
                     }
-                    if (response.modtlist != null && response.modtlist != undefined && response.modtlist.length > 0) {
+                    if (response.modtlist) {
                         for (let k = 0; k < response.modtlist.length; k++) {
                             if (document.Extended_SObject_RecordId__c === response.modtlist[k].Id) {
-                                // Return a new object with the updated properties
                                 return {
                                     ...document,
                                     ismortager: true,
@@ -116,7 +142,7 @@ export default class DispatchComponent extends LightningElement {
                                     isDisabled: true,
                                     transferByName: document.Transfer_To__r.Name,
                                     executed_on_date: response.modtlist[k].Date_Of_Execution__c,
-                                    excecution_place: response.modtlist[k].Place__c.street + ',' + response.modtlist[k].Place__c.state + ',' + response.modtlist[k].Place__c.country
+                                    excecution_place: `${response.modtlist[k].Place__c.street},${response.modtlist[k].Place__c.state},${response.modtlist[k].Place__c.country}`
                                 };
                             }
                         }
@@ -124,18 +150,15 @@ export default class DispatchComponent extends LightningElement {
                     return document;
                 });
 
-                if (response.recepiantUsers != null && response.recepiantUsers != undefined && response.recepiantUsers.length > 0) {
+                if (response.recepiantUsers) {
                     this.accountIdNameMap = {};
                     for (let i = 0; i < response.recepiantUsers.length; i++) {
-                        const accountId = response.recepiantUsers[i].Individual.AccountId__c;
+                        const accountId = response.recepiantUsers[i].Branches_List_String_Literal__c;
                         const userId = response.recepiantUsers[i].Id;
                         const userName = response.recepiantUsers[i].Name;
-                        // Check if accountId already exists in the map
                         if (this.accountIdNameMap.hasOwnProperty(accountId)) {
-                            // Push new map into the same key
                             this.accountIdNameMap[accountId].push({ value: userId, label: userName });
                         } else {
-                            // Create a new entry with accountId as key and an array with the new map as value
                             this.accountIdNameMap[accountId] = [{ value: userId, label: userName }];
                         }
                     }
@@ -155,22 +178,16 @@ export default class DispatchComponent extends LightningElement {
                     value: partner.Id
                 }));
 
-                if (taskRec == null || taskRec == undefined) {
-                    this.showButtonDispatch = true
-                }
-
-                return;
+                this.showButtonDispatch = !taskRec;
             })
             .catch(error => {
-                // alert('error---');
                 const evt = new ShowToastEvent({
                     title: "ERROR",
                     message: "No Documents Found!",
-                    variant: "Error",
+                    variant: "error",
                 });
                 this.dispatchEvent(evt);
                 console.log('error--', error);
-                // console.error('An error occurred:', error.body.message);
             });
     }
 
@@ -180,6 +197,13 @@ export default class DispatchComponent extends LightningElement {
         this.activeSections = openSections;
     }
 
+    dispatchingBranchChnageHandler(event) {
+        debugger;
+        let recipantId = event.detail.value;
+        this.resetData();
+        this.doInitFromParentComp(this.taskRec,recipantId);
+
+    }
     addBooleanField(documents) {
         debugger;
         return documents.map(record => {
@@ -189,6 +213,22 @@ export default class DispatchComponent extends LightningElement {
                 [`is${documentName}`]: true // Dynamically adding a boolean field with the name is<Document_Name__c>
             };
         });
+    }
+
+    resetData(){
+        debugger;
+        this.accoutIdNameMap='';
+        this.tempAccountDepartmentOptions='';
+        this.tempAccountUserOptions='';
+        this.shippingPartnerOptions='';
+        this.textValue='';
+        this.selectedRecipant='';
+        this.selectedDepartment='';
+        this.selectedUser='';
+        this.selectedShippingPartner='';
+        this.maskeddatalist=[];
+        this.showButtonDispatch=false;
+        this.isDispatchButtonDisabled=true;
     }
 
 
@@ -224,6 +264,7 @@ export default class DispatchComponent extends LightningElement {
 
     getDepartments(recipantIds) {
         debugger;
+        this.DepartmentWithDepartmentMembers=[];
         getGroupNameandGroupMembers({ AccountIds: recipantIds })
             .then(response => {
                 if (response != null && response != undefined) {
@@ -511,6 +552,9 @@ export default class DispatchComponent extends LightningElement {
                     } else {
                         errorobj.isValidation_success = true;
                         errorobj.errormessage = null;
+                    }if(this.selectedDepartment =="" || this.selectedDepartment ==undefined || this.selectedDepartment ==null){
+                        errorobj.isValidation_success = false;
+                        errorobj.errormessage = 'Please Select Department';
                     }
                 } else {
                     errorobj.isValidation_success = false;

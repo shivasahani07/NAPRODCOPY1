@@ -50,8 +50,7 @@ public class Test_API_UpdateStatus {
         insert taskRec;
         Test.startTest();
         Test.setMock(HttpCalloutMock.class, new MockHttpResponseGenerator(200, '{"message": "success",  "status": "Verified"}'));
-        
-        
+       
         API_updateStatus.processRequestdata(taskRec.Id);
         Test.stopTest();
     }

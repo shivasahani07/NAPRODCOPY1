@@ -69,6 +69,7 @@ export default class DuplicatePaybleComp extends LightningElement {
     @track entityList = [];
     @track entityMap = new Map();
     @track bankAccMap = new Map();
+    @track bankAccountNampById = new Map();
     @track statusList = [];
     @track simpleMap=[];
 
@@ -206,19 +207,19 @@ export default class DuplicatePaybleComp extends LightningElement {
                 allDetails = allDetails.concat(entity.Financial_Entity_AC_Details__r);
             }
         });
-        console.log('bankEntityList',bankEntityList);
-        let setOfEnityTypePayeeName = new Map();
-        completeData.EntityACDetailsList.forEach(item => {
-            let tempSelectedEntityType = item.Financial_Entity__r?.Entity_Type__c;
-            let tempFinancialEntityId = item.Financial_Entity__r?.Id;
-            let tempFinancialEntityName = item.Financial_Entity__r?.Name;
-            if (tempSelectedEntityType && !setOfEnityTypePayeeName.has(tempSelectedEntityType)) {
-                setOfEnityTypePayeeName.set(tempSelectedEntityType, []);
-            }
-            if (tempSelectedEntityType && tempFinancialEntityName && !setOfEnityTypePayeeName.get(tempSelectedEntityType).includes(tempFinancialEntityName)) {
-                setOfEnityTypePayeeName.get(tempSelectedEntityType).push({ label: tempFinancialEntityName, value: tempFinancialEntityName });
-            }
-        });
+        console.log('bankEntityList:::',bankEntityList);
+        // let setOfEnityTypePayeeName = new Map();
+        // completeData.EntityACDetailsList.forEach(item => {
+        //     let tempSelectedEntityType = item.Financial_Entity__r?.Entity_Type__c;
+        //     let tempFinancialEntityId = item.Financial_Entity__r?.Id;
+        //     let tempFinancialEntityName = item.Financial_Entity__r?.Name;
+        //     if (tempSelectedEntityType && !setOfEnityTypePayeeName.has(tempSelectedEntityType)) {
+        //         setOfEnityTypePayeeName.set(tempSelectedEntityType, []);
+        //     }
+        //     if (tempSelectedEntityType && tempFinancialEntityName && !setOfEnityTypePayeeName.get(tempSelectedEntityType).includes(tempFinancialEntityId)) {
+        //         setOfEnityTypePayeeName.get(tempSelectedEntityType).push({ label: tempFinancialEntityName, value: tempFinancialEntityId });
+        //     }
+        // });
 
         //loop
         completeData.PayablesLIst.forEach((item, index) => {
@@ -227,7 +228,7 @@ export default class DuplicatePaybleComp extends LightningElement {
                 index: index + 1,
                 Id: item.Id || null,
                 selectedentitytype: item.Finacial_Entity_Details__r?.Entity_Type__c || null,
-                entityTypePicklist: setOfEnityTypePayeeName.get(item.Finacial_Entity_Details__r?.Entity_Type__c) || null,
+                // entityTypePicklist: setOfEnityTypePayeeName.get(item.Finacial_Entity_Details__r?.Entity_Type__c) || null,
                 selectedpayeename: item.Finacial_Entity_Details__r?.Id || null,
                 selectedbankacc: item.Financial_Entity_A_C_Details__r?.Id || null,
                 IFSC_Code:item.Financial_Entity_A_C_Details__r ?.IFSC_Code__c ||null,
@@ -237,7 +238,8 @@ export default class DuplicatePaybleComp extends LightningElement {
                 //payMentModePiclist: completeData.paymentModeTypesValues || null,getPaymentModeAsPer_Entity
                 payMentModePiclist: this.getPaymentModeAsPer_Entity(item.Finacial_Entity_Details__r.Entity_Type__c),
                 PayeeName: this.entityMap.get(item.Finacial_Entity_Details__r?.Entity_Type__c) || null,
-                bankAccList: this.bankAccMap.get(item.Finacial_Entity_Details__r?.Name) || null,
+                bankAccList: this.bankAccMap.get(item.Finacial_Entity_Details__r?.Id) || null,
+                bankAccountNampById:this.bankAccountNampById.get(item.Financial_Entity_A_C_Details__r.Id) || null,
                 createdon: item.CreatedDate || null,
                 entityList: this.entityList || null,
                 statusList: this.statusList || null,
@@ -253,6 +255,7 @@ export default class DuplicatePaybleComp extends LightningElement {
                 isStatusDisabled: true,
                 iseditDisabled : item.Task_Id__c==this.TaskId && item.Id!=null && item.Status__c !== 'Draft' && this.isTaskOwnerLogin==true?false:true,
                 isShowsave:false,
+                isDisabledbankAccountNampById:true,
                 IsActive__c:item.IsActive__c
             };
 
@@ -409,7 +412,7 @@ export default class DuplicatePaybleComp extends LightningElement {
                     tempselectedfinancialentityACList = tempObj.filter((dtl) => dtl.Financial_Entity__c == payId);
                 }
                 this.payAblesList[i].isBankAccountDisabled = false;
-            } if (currentValue == 'Select') {
+            } if (currentValue == 'Select' ) {
                 this.payAblesList[i].isBankAccountDisabled = true;
             }
         }
@@ -430,19 +433,22 @@ export default class DuplicatePaybleComp extends LightningElement {
         let eventName = event.target.name;
         let currentIndex = event.target.dataset.index;
         let currentValue = event.target.value;
+        let currentLabel = event.target.label;
         let cureentId = event.target.dataset.id;
         let prevIndex = currentIndex - 1;
+       
         this.payAblesList[parseInt(currentIndex) - 1].selectedbankacc = currentValue;
         debugger;
         for (let i = 0; i < this.payAblesList.length; i++) {
             if (this.payAblesList[i].index == currentIndex) {
                 this.payAblesList[i].isPaymentModeDisabled = false;
-                if (currentValue == 'Select') {
+                this.payAblesList[i].bankAccountNampById=this.bankAccountNampById.get(currentValue);
+                if (currentValue == 'Select' ||this.bankAccountNampById.get(currentValue).label=='Not Availiable') {
                     this.payAblesList[i].isPaymentModeDisabled = true;
                 }
             }
         }
-
+        
         //this.Check_mandatory_field_validation(this.payAblesList,(parseInt(currentIndex)));
     }
 
@@ -723,6 +729,7 @@ export default class DuplicatePaybleComp extends LightningElement {
                     selectedpaymode: '',
                     selectedamount: '',
                     Status__c: 'Draft',
+                    isDisabledbankAccountNampById:true,
                     PayeeName: [],
                     createdon: new Date().toJSON().slice(0, 10),
                     isEditButtonDisabled: true,
@@ -756,6 +763,7 @@ export default class DuplicatePaybleComp extends LightningElement {
 
     }
 
+    
     reformData(data) {
         debugger;
         let status = [];
@@ -767,10 +775,14 @@ export default class DuplicatePaybleComp extends LightningElement {
                     } else {
                         this.entityMap.set(item.Financial_Entity__r.Entity_Type__c, [{ label: item.Financial_Entity__r.Name, value: item.Financial_Entity__r.Id }])
                     }
-                    if (this.bankAccMap.has(item.Financial_Entity__r.Name)) {
-                        this.bankAccMap.get(item.Financial_Entity__r.Name).push({ label: item.Bank_Account_Number__c, value: item.Id });
+                    if (this.bankAccMap.has(item.Financial_Entity__r.Id)) {
+                        this.bankAccMap.get(item.Financial_Entity__r.Id).push({ label: item.Bank_Account_Number__c, value: item.Id });
                     } else {
-                        this.bankAccMap.set(item.Financial_Entity__r.Name, [{ label: item.Bank_Account_Number__c, value: item.Id }]);
+                        this.bankAccMap.set(item.Financial_Entity__r.Id, [{ label: item.Bank_Account_Number__c, value: item.Id }]);
+                    }if(this.bankAccountNampById.has(item.Id)){
+                        this.bankAccountNampById.get(item.Id).push({ label: item.Name, value: item.Id });
+                    }else{
+                        this.bankAccountNampById.set(item.Id, [{ label: item.Name, value: item.Id }]);
                     }
                 }
             })

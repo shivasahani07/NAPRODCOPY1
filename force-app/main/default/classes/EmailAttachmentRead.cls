@@ -30,6 +30,9 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                     integer sampleCounter = rows.Size();
                     system.debug('sampleCounter::'+sampleCounter);
                     List<Paybale__c> payableListTobeUpdate = new List<Paybale__c>();
+                    Set<String> newPayblesFilesId=new  Set<String>();
+                    map<string,Paybale__c> payablesIdByfilesnames=new map<string,Paybale__c>(); 
+                    Set<Id> existingPayableIds = new Set<Id>();
                     Set<Id> extendedIdSet = new Set<Id>();
                     List<Id> currentTaskIdSet = new List<Id>();
                     for(integer i=0;i<rows.Size();i++){
@@ -56,10 +59,12 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                                         system.debug('k::'+k);
                                         system.debug('j::'+j);
                                         Paybale__c payableRec = new Paybale__c();
-                                        payableRec.Id = rows[k].split(',')[j];
-                                        extendedIdSet.add(payableRec.Id);
+                                        payableRec.Name = rows[k].split(',')[j];
+                                        newPayblesFilesId.add(rows[k].split(',')[j]);
+                                        system.debug('newPayblesFilesId--->'+newPayblesFilesId);
+                                         //extendedIdSet.add(payableRec.Id);
                                         system.debug('extendedIdSet::'+extendedIdSet);
-                                        payableListTobeUpdate.add(payableRec) ;
+                                        payableListTobeUpdate.add(payableRec);
                                     }
                                 }
                                 
@@ -67,7 +72,6 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                                     system.debug('Inside RBI UTR');
                                     integer tempCount = 0;
                                     for(integer k=i+1;k<sampleCounter;k++){
-                                        
                                         for(integer d=0;d<payableListTobeUpdate.size();d++){
                                             if(tempCount == d){
                                                 payableListTobeUpdate[d].RBI_UTR_Reference_Number__c =  rows[k].split(',')[j];
@@ -96,7 +100,12 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                                         
                                         for(integer d=0;d<payableListTobeUpdate.size();d++){
                                             if(tempCount == d){
-                                                payableListTobeUpdate[d].Status__c =  rows[k].split(',')[j];
+                                                if(rows[k].split(',')[j] == 'Successful' || rows[k].split(',')[j] == 'Accepted By Bank'){
+                                                    payableListTobeUpdate[d].Status__c =  'Accepted By Bank';
+                                                }else{
+                                                    payableListTobeUpdate[d].Status__c = rows[k].split(',')[j];
+                                                }
+                                                
                                             }
                                         }
                                         ++tempCount;
@@ -105,10 +114,38 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                             }
                         }
                     }
-                    if(!payableListTobeUpdate.isEmpty()){
-                        system.debug('payableListTobeUpdate::'+payableListTobeUpdate);
+                    System.debug('newPayblesFilesId ===> ' + newPayblesFilesId);
+                    List<Paybale__c> existingPayableList = [SELECT Id, Name,CreatedById, Task_Id__c, Instrument_Number__c, 
+                                                            Payable_File_Name__c 
+                                                            FROM Paybale__c 
+                                                            WHERE Payable_File_Name__c IN :newPayblesFilesId];
+                    system.debug('existingPayableList::'+existingPayableList.size());
+                    if(!existingPayableList.Isempty()){
+                        for (Paybale__c pay : existingPayableList) {
+                            payablesIdByfilesnames.put(pay.Payable_File_Name__c, pay);
+                            system.debug('payablesIdByfilesnames::'+payablesIdByfilesnames);
+                        }
+                    }
+                    
+                    
+                    if (!payableListTobeUpdate.isEmpty()) {
+                        
+                        for (Paybale__c pay : payableListTobeUpdate) {
+                            system.debug('pay.Name::'+pay.Name);
+                            system.debug('payablesIdByfilesnames.get(pay.Name)::'+payablesIdByfilesnames.get(pay.Name));
+                            if(payablesIdByfilesnames.get(pay.Name).Id!=null){
+                                pay.Id = payablesIdByfilesnames.get(pay.Name).Id;
+                                extendedIdSet.add(pay.Id);
+                                pay.Name=payablesIdByfilesnames.get(pay.Name).Name;
+                            }
+                        }
+                        
+                        // Debugging the list of Paybale__c records to be updated
+                        System.debug('payableListTobeUpdate::' + payableListTobeUpdate);
+                        // Update the list of Paybale__c records
                         update payableListTobeUpdate;  
                     }
+                    
                     system.debug('extendedIdSet::'+extendedIdSet);
                     if(!extendedIdSet.isEmpty()){
                         List<Paybale__c> payableRecList = new List<Paybale__c>();
@@ -211,11 +248,11 @@ global class EmailAttachmentRead implements Messaging.InboundEmailHandler{
                                         docHandler.Document_Id_Value__c = String.valueOf(mapOfRecIdByPayRec.get(docHandler.Extended_SObject_RecordId__c).Instrument_Number__c);
                                     }
                                     
-                                    update listofDocHanlderTobeUpdate; 
-                                }
-                                 if(!taskListTobeUpdate.isEmpty()){
+                                    update listofDocHanlderTobeUpdate;
+                                    if(!taskListTobeUpdate.isEmpty()){
                                         update taskListTobeUpdate;
-                                 }
+                                    }
+                                }
                             }
                         }   
                     }

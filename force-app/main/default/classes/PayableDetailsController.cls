@@ -172,7 +172,7 @@ ReturnFEntityDetailsFI.clear();
     }
     
     public static List<Paybale__c> getRelatedPayables(String Financial_AccountId){
-        return [SELECT Id, Amount__c, Finacial_Entity_Details__c, Financial_Account__c, Financial_Entity_A_C_Details__c, IsActive__c, Mode__c, Status__c, Task_Id__c, Name, Finacial_Entity_Details__r.Entity_Type__c, Financial_Entity_A_C_Details__r.Bank_Account_Number__c, Finacial_Entity_Details__r.Name, CreatedDate, Finacial_Entity_Details__r.Id
+        return [SELECT Id, Amount__c, Finacial_Entity_Details__c, Financial_Account__c, Financial_Entity_A_C_Details__c, IsActive__c, Mode__c, Status__c, Task_Id__c, Name, Finacial_Entity_Details__r.Entity_Type__c, Financial_Entity_A_C_Details__r.Bank_Account_Number__c, Finacial_Entity_Details__r.Name, CreatedDate, Finacial_Entity_Details__r.Id,Financial_Entity_A_C_Details__r.Banking_Account_Name__c
                 FROM Paybale__c
                 WHERE Financial_Account__c = :Financial_AccountId];
     }
@@ -183,7 +183,7 @@ ReturnFEntityDetailsFI.clear();
                 WHERE Financial_Entity__r.Financial_Account__c = :Financial_AccountId];
     }
     
-
+    
     private static list<Financial_Entity_AC_Detail__c> getrelatedEntityACdetailsnew(String Financial_AccountId){
         return [SELECT Financial_Entity__r.Id, Financial_Entity__r.Name, Financial_Entity__r.Account_Name__c, Banking_Account_Name__c, Financial_Entity__r.Contact__c, Financial_Entity__r.Entity_Type__c, Financial_Entity__r.Task_ID__c, Financial_Account__c, Financial_Entity__r.Financial_Account__c, Id, Name, Bank_Name__c, Branch_Name__c, Verification_Status__c, IFSC_Code__c,
                 Digitally_Verification_Method__c, Task_ID__c, Bank_Account_Number__c, Financial_Entity__c, CreatedDate,Physically_verified__c,Bank_Account_Type__c,Digitally_Verified__c,isChanged__c
@@ -245,7 +245,10 @@ ReturnFEntityDetailsFI.clear();
     }
     
     @AuraEnabled(cacheable = true)
-    Public static verifyDataWrapper getRelatedContactAccount(string financialAccountId){
+    Public static verifyDataWrapper getRelatedContactAccount(string financialAccountId,String subject, String parentTaskId){
+        system.debug('financialAccountId--->' + financialAccountId);
+        system.debug('subject--->' + subject); 
+        system.debug('parentTaskId--->' + parentTaskId);
         verifyDataWrapper recordsEntry = new verifyDataWrapper();
         recordsEntry.entityTypesValue = getEntityTypes();
         recordsEntry.accountTypePicklist = getAccountTypePicklistValue();
@@ -258,8 +261,68 @@ ReturnFEntityDetailsFI.clear();
                                             select Account_Name__c
                                             FROM Financial_Account__c
                                             WHERE id = :financialAccountId].Account_Name__c];
+        recordsEntry.MapByBankdetailsMaxnumberexceed=getAllRelatedChildTaskWithPPtd(subject,parentTaskId);
         system.debug('--->' + recordsEntry.existingContact);
         return recordsEntry;
+    }
+
+    @AuraEnabled
+    public static  Map<String,boolean>  getAllRelatedChildTaskWithPPtd(String subject, String parentTaskId) {
+        try {
+            // Fetch parent task
+            system.debug('subject---:'+subject);
+            system.debug('parentTaskId---:'+parentTaskId);
+            Map<String, Integer> attributeCountMap = new Map<String, Integer>();
+            Map<String,boolean> MaxNumberCountMapBoolean = new Map<String, boolean>();
+            Task parentTask = [SELECT Id, Process_Path_Task_Detail__c, Parent_Task_Id__c, Process_Attribute_Object_Type__c, Process_Attribute__c, WhatId, 
+                               WhoId, Process_Path_Task_Detail__r.No_Of_Attempts_Allowed__c, Current_Attempt_No__c, Status
+                               FROM Task
+                               WHERE Id = :parentTaskId
+                               LIMIT 1];
+
+            if (parentTask == null) {
+                throw new AuraHandledException('Parent task not found.');
+            }
+
+            // Fetch process path task details
+            Process_Path_Task_Detail__c pptaskDetails = [SELECT Id, Subject__c, No_Of_Attempts_Allowed__c
+                                                         FROM Process_Path_Task_Detail__c
+                                                         WHERE Process_Task_Detail__r.Subject__c = :subject
+                                                         AND Manual_API_Call_Out__c = true 
+                                                         AND IsActive__c = true
+                                                         ORDER BY CreatedDate ASC
+                                                         LIMIT 1];
+
+            if (pptaskDetails == null) {
+                throw new AuraHandledException('Process path task details not found.');
+            }
+
+            Integer maxAttempts = Integer.valueOf(pptaskDetails.No_Of_Attempts_Allowed__c);
+
+            // Fetch existing child tasks
+            List<Task> allChildTasks = [SELECT Id, Process_Path_Task_Detail__c, Parent_Task_Id__c, Process_Attribute_Object_Type__c, Process_Attribute__c, 
+                                        WhatId, WhoId, Process_Path_Task_Detail__r.No_Of_Attempts_Allowed__c, Status, Current_Attempt_No__c,Attribute1__c
+                                        FROM Task 
+                                        WHERE Parent_Task_Id__c = :parentTaskId];
+            
+            for (Task childTask : allChildTasks) {
+                String attributeValue = childTask.Attribute1__c;
+                if (attributeCountMap.containsKey(attributeValue)) {
+                    attributeCountMap.put(attributeValue, attributeCountMap.get(attributeValue) + 1);
+                } else {
+                    attributeCountMap.put(attributeValue, 1);
+                }
+                MaxNumberCountMapBoolean.put(childTask.Attribute1__c,attributeCountMap.get(childTask.Attribute1__c)==maxAttempts);
+
+            }
+
+            return MaxNumberCountMapBoolean;
+
+        } catch (Exception e) {
+            System.debug('Error occurred: ' +e);
+            System.debug('Error occurred at : ' +e.getLineNumber());
+            throw new AuraHandledException('Error: ' + e.getMessage());
+        }
     }
     
     @AuraEnabled
@@ -436,7 +499,11 @@ ReturnFEntityDetailsFI.clear();
         public List<Financial_Entity_AC_Detail__c> EntityACDetailsList;
         @AuraEnabled
         public List<String> accountTypePicklist;
-        
+        @auraEnabled 
+        public boolean isMaxTaskCreated;
+        @auraEnabled 
+        public Map<String,boolean> MapByBankdetailsMaxnumberexceed;
+
     }
     
     @auraEnabled
@@ -573,47 +640,93 @@ ReturnFEntityDetailsFI.clear();
         
     }
     
-    public class NoTaskDetailFoundException extends Exception{
+    public class NoTaskDetailFoundException extends Exception {
+        
     }
     
-    @auraEnabled
-    public static Id createTask(String subject, String backDetailsRecordId, string parentTaskId){
-        
-        try{
-            task parentTask = [SELECT id, Process_Path_Task_Detail__c, Parent_Task_Id__c, Process_Attribute_Object_Type__c, Process_Attribute__c, WhatId, whoId
-                               FROM task
-                               where id = :parentTaskId
-                               limit 1];
-            Process_Path_Task_Detail__c pptaskDtails = [select id, subject__c
-                                                        from Process_Path_Task_Detail__c
-                                                        where process_task_detail__r.subject__c = :subject AND Manual_API_Call_Out__c = true AND isActive__c = true
-                                                        order by createdDate ASC
-                                                        limit 1];
-            Task newTask = new Task();
-            newTask.Attribute1__c = backDetailsRecordId;
-            newTask.Status = 'Open';
-            newTask.Subject = pptaskDtails.subject__c;
-            // Only proceed if there is exactly one record found
-            if (parentTask != null){
-                newTask.Process_Path_Task_Detail__c = pptaskDtails.id;
-                //newTask.Process_Attribute_Object_Type__c = parentTask.Process_Attribute_Object_Type__c;
-                newTask.Process_Attribute__c = parentTask.Process_Attribute__c;
-                newTask.Parent_Task_Id__c = parentTask.id;
-                newTask.WhatId = parentTask.WhatId;
-                newTask.whoId = parentTask.whoId;
-            } else{
-                // Handle the case where no matching record is found
-                throw new NoTaskDetailFoundException('No parentTask found for --->: ' + parentTaskId);
+    @AuraEnabled
+    public static Id createTask(String subject, String bankDetailsRecordId, String parentTaskId) {
+        try {
+            // Fetch parent task
+            Task parentTask = [SELECT Id, Process_Path_Task_Detail__c, Parent_Task_Id__c, Process_Attribute_Object_Type__c, Process_Attribute__c, WhatId, 
+                               WhoId, Process_Path_Task_Detail__r.No_Of_Attempts_Allowed__c, Current_Attempt_No__c, Status
+                               FROM Task
+                               WHERE Id = :parentTaskId
+                               LIMIT 1];
+            
+            if (parentTask == null) {
+                throw new AuraHandledException('Parent task not found.');
+            }
+            // Fetch process path task details
+            Process_Path_Task_Detail__c pptaskDetails = [SELECT Id, Subject__c, No_Of_Attempts_Allowed__c
+                                                         FROM Process_Path_Task_Detail__c
+                                                         WHERE Process_Task_Detail__r.Subject__c = :subject
+                                                         AND Manual_API_Call_Out__c = true 
+                                                         AND IsActive__c = true
+                                                         ORDER BY CreatedDate ASC
+                                                         LIMIT 1];
+            
+            if (pptaskDetails == null) {
+                throw new AuraHandledException('Process path task details not found.');
             }
             
+            Integer maxAttempts = Integer.valueOf(pptaskDetails.No_Of_Attempts_Allowed__c);
+            
+            // Fetch existing child tasks
+            List<Task> allChildTasks = [SELECT Id, Process_Path_Task_Detail__c, Parent_Task_Id__c, Process_Attribute_Object_Type__c, Process_Attribute__c, 
+                                        WhatId, WhoId, Process_Path_Task_Detail__r.No_Of_Attempts_Allowed__c, Status, Current_Attempt_No__c
+                                        FROM Task 
+                                        WHERE Parent_Task_Id__c = :parentTaskId AND Attribute1__c =:bankDetailsRecordId];
+            
+            system.debug('maxAttempts::: ' + maxAttempts);
+            system.debug('pptaskDetails::: ' + pptaskDetails);
+            system.debug('allChildTasks::: ' + allChildTasks);
+            
+            // Create new task
+            Task newTask = new Task();
+            newTask.Attribute1__c = bankDetailsRecordId;
+            newTask.Status = 'Open';
+            newTask.Subject = pptaskDetails.Subject__c;
+            
+            if (allChildTasks.size() > 0) {
+                Integer highestAttemptNumber = 0;
+                Boolean foundFailedTask = false;
+                
+                for (Task childTask : allChildTasks) {
+                    if (childTask.Status == 'Failed') {
+                        foundFailedTask = true;
+                        highestAttemptNumber = Math.max(highestAttemptNumber, integer.valueof(childTask.Current_Attempt_No__c));
+                    }
+                }
+                
+                
+                if (highestAttemptNumber >= maxAttempts) {
+                    throw new AuraHandledException('Maximum number of attempts exceeded.');
+                }
+                
+                newTask.Current_Attempt_No__c = highestAttemptNumber + 1;
+            } else {
+                newTask.Current_Attempt_No__c = 1;
+            }
+            
+            // Set parent task details
+            newTask.Process_Path_Task_Detail__c = pptaskDetails.Id;
+            newTask.Process_Attribute__c = parentTask.Process_Attribute__c;
+            newTask.Parent_Task_Id__c = parentTask.Id;
+            newTask.WhatId = parentTask.WhatId;
+            newTask.WhoId = parentTask.WhoId;
+            
             insert newTask;
+            system.debug('New task created::: ' + newTask);
+            
             return newTask.Id;
-        } catch (NoTaskDetailFoundException e){
+            
+        } catch (AuraHandledException e) {
             // Handle the custom exception
-            System.debug('Custom Exception occurred: ' + e.getMessage());
-            System.debug('Custom Exception occurred at line Number: ' + e.getlineNumber());
-            // You can choose to throw the exception further or return null
-            return null;
+            throw e;
+        } catch (Exception e) {
+            // Handle other exceptions
+            throw new AuraHandledException('General Exception occurred: ' + e.getMessage());
         }
     }
     
@@ -640,7 +753,7 @@ ReturnFEntityDetailsFI.clear();
         String base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
         for (Schema.PicklistEntry entry : dependentFieldResult.getPicklistValues()){
             System.debug('entry ===> ' + entry);
-            if (entry.isActive()){
+            if (entry.isActive()){ 
                 List<String> base64chars = String.valueOf(((Map<String, Object>)JSON.deserializeUntyped(JSON.serialize(entry))).get('validFor')).split('');
                 System.debug('base64chars ===> ' + base64chars);
                 System.debug('controllerValues ===> ' + controllerValues);

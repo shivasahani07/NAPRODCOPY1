@@ -199,7 +199,7 @@ private class lwc_Handledocuments_ControllerTest {
         String uploadedTaskId = task.Id;
 
         // Test the uploadFile method
-        lwc_Handledocuments_Controller.uploadFile(base64, filename, recordId, uploadedTaskId);
+        lwc_Handledocuments_Controller.uploadFile(base64, filename, recordId, uploadedTaskId,'Sharepoint');
         Test.stopTest();
     }
 

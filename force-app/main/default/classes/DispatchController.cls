@@ -2,18 +2,24 @@ public without sharing class DispatchController {
     
     // @AuraEnabled method to retrieve Document Courier Details where Status is 'To be couriered'
     //(cacheable=true)
+    @AuraEnabled
+    public Static List<Account> getUserLocationAccounts(){
+        string v_currentLogin_userId=userinfo.getUserid();
+        return GlobalMethod_Call.getAllRelatedAccounts(v_currentLogin_userId);
+    }
     @AuraEnabled(cacheable=true)
-    public static wrapperData getDocumentsToBeCouriered(task inp_Task) {
+    public static wrapperData getDocumentsToBeCouriered(task inp_Task,string accountId) {
         wrapperData prepare = new wrapperData();        
         set<id> accIds = new set<id>(); 
+        map<string,string> map_acc_TransferBranchNames = new map<string,string>(); 
         list<Paybale__c> payableLIst= new list<Paybale__c>();
         List<MODT_Details__c> modtlist = new list<MODT_Details__c>();
         prepare.modtlist = new list<MODT_Details__c>();
         Account userAccDet;
         string userAccId;
         
-         userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id =:[SELECT Individual.AccountId__c FROM User WHERE Id = :userinfo.getUserid()].Individual.AccountId__c];
-         userAccId=userAccDet.Id;
+        userAccDet = [SELECT Id, Name,(SELECT Id, MailingStreet, MailingCity, MailingState, MailingCountry, MailingPostalCode,AccountId FROM Contacts WHERE IsActive__c =true order by createddate desc limit 1) FROM Account WHERE Id =:accountId];
+        userAccId=userAccDet.Id;
         
         system.debug('userAccDet::'+userAccDet);
         
@@ -32,6 +38,7 @@ public without sharing class DispatchController {
                 if (!accIds.contains(dc.Transfer_to__c))
                 {
                     accIds.add(dc.Transfer_to__c);
+                    map_acc_TransferBranchNames.put(dc.Transfer_to__r.Name,dc.Transfer_to__c);
                     Account ac = new Account();
                     ac.Id = dc.Transfer_to__c;
                     ac.Name = dc.Transfer_to__r.Name;
@@ -83,12 +90,28 @@ public without sharing class DispatchController {
                 }  
             }
             
-            prepare.recepiantUsers=[SELECT Id,Name,Individual.AccountId__c FROM user WHERE IsActive=true AND Individual.AccountId__c IN:accIds];
+            //prepare.recepiantUsers=[SELECT Id,Name,Individual.AccountId__c FROM user WHERE IsActive=true AND Individual.AccountId__c IN:accIds];
+            list<user> l_receipentusers =[SELECT Id,Name,Branches_List_String_Literal__c FROM user WHERE IsActive=true and Branches_List_String_Literal__c != null];
+            prepare.recepiantUsers = new list<user>();
+            for (string lv_acc_TransferBranchName:map_acc_TransferBranchNames.keyset())
+            {
+                for (user lv_receipentuser:l_receipentusers)
+                {
+                    if (lv_receipentuser.Branches_List_String_Literal__c.contains(lv_acc_TransferBranchName))
+                    {
+                        user tempuser = new user();
+                        tempuser = lv_receipentuser;
+                        tempuser.id = lv_receipentuser.id;
+                        //tempuser.name = lv_receipentuser.name;
+                        tempuser.Branches_List_String_Literal__c = map_acc_TransferBranchNames.get(lv_acc_TransferBranchName);
+                        prepare.recepiantUsers.add(tempuser);
+                    }
+                }
+            }
             
         }else{
             prepare.message='No Documents To Be Dispatched';
         }
-        
         return prepare;
     }
     
@@ -109,7 +132,10 @@ public without sharing class DispatchController {
         try {
             List<Document_Handler__c> docCourierList = [SELECT Id,Transfer_to__c,Transfer_By__c,Comment_History__c FROM Document_Handler__c WHERE Id IN:documentCourierId];
             id PTOAMatrix=[Select Id From Process_Task_Owner_Assignment_Matrix__c Where Queue_Name__c=:DepartmentName AND Account__c=:AccountId].Id;
-            id currentUserId=[Select Id From User Where Name=:userId].Id;
+            id currentUserId;
+            if(userId!=null){
+               	currentUserId=[Select Id From User Where Name=:userId].Id;
+            }
             if (docCourierList.size()>0) {
                 for(Document_Handler__c doc : docCourierList){
                     Document_Handler__c docRec = new Document_Handler__c();
@@ -135,7 +161,7 @@ public without sharing class DispatchController {
         }
         return null;
     }
-        
+    
     @AuraEnabled(cacheable=true)
     Public static wrapperData getWiredDatforReceiver(string taskId){
         wrapperData prepare = new wrapperData();

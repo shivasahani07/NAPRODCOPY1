@@ -1,0 +1,18 @@
+<template>
+	<div style="width:40%">
+		<lightning-quick-action-panel header="Upload Document">
+			<lightning-input data-label="UploadDocument" type="file" accept=".xlsx, .xls, .csv" label=""
+				onchange={openfileUpload}>
+			</lightning-input>
+			<template if:true={fileName}>
+				<lightning-pill label={fileName} onremove={handleRemove}>
+					<lightning-icon icon-name="doctype:unknown"></lightning-icon>
+				</lightning-pill>
+			</template>
+			<div slot="footer">
+				<lightning-button variant="brand" label="Upload" onclick={HandleSavefromAura}
+					class="slds-align_absolute-center"></lightning-button>
+			</div>
+		</lightning-quick-action-panel>
+	</div>
+</template>

@@ -2,7 +2,7 @@
 private class DocumentCourierDetailControllerTest {
     @isTest
     static void testGetDocumentCourierDetails() {  
-        Account userAccDet = new Account(Name = 'Test User Account', Product_Bussiness_Line__c='NU Score');
+        Account userAccDet = new Account(Name = 'Bangelore', Product_Bussiness_Line__c='NU Score');
         insert userAccDet;
         Contact testContact = new Contact(LastName = 'Test Contact', AccountId = userAccDet.Id, IsActive__c = true);
         insert testContact;
@@ -10,8 +10,10 @@ private class DocumentCourierDetailControllerTest {
         testIndividual.AccountId__c = userAccDet.id;
         insert testIndividual;
         User testUser = TestUtility.createUserInstance();
+        testUser.Branches_List_String_Literal__c='Bangelore';
         testUser.IndividualId = testIndividual.id;
         insert testUser;
+        Account BangeloreUseraccount = new Account(Name = 'Bangelore', Product_Bussiness_Line__c='NU Score');
 
         Task testTaskData = TestUtility.CreateTaskInstance();
         insert testTaskData;

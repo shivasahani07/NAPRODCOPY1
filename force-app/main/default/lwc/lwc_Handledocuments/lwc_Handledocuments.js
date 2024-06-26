@@ -1107,13 +1107,13 @@ export default class Lwc_Handledocuments extends NavigationMixin(LightningElemen
     UploadDocumentOnDH(dhrecord) {
         debugger;
         if(this.sharepointurlLink!=null && this.sharepointurlLink!=undefined && this.sharepointurlLink!=''){
-             this.store_typed_sharepointLink(this.sharepointurlLink);
+             this.store_typed_sharepointLink(this.sharepointurlLink,'Sharepoint');
         }else{
             if (dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c != null || dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c != undefined) {
                 if (dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c == 'Salesforce') {
-                    this.storeDocumentInSfsystem(this.fileData);
+                    this.storeDocumentInSfsystem(this.fileData,'Salesforce');
                 } else if (dhrecord.Process_Attribute_Dcoument_Detail__r.DMS_System__c == 'Sharepoint') {
-                    this.storeDocumentInSharePoint(this.fileData);
+                    this.storeDocumentInSharePoint(this.fileData,'Sharepoint');
                 }
             } else {
                 this.showNotification('Error', 'DMS SYSTEM ID IS NULL & Please Contact Your System Admin', 'error');
@@ -1122,10 +1122,10 @@ export default class Lwc_Handledocuments extends NavigationMixin(LightningElemen
     }
 
 
-    store_typed_sharepointLink(sharepointpath_link){
+    store_typed_sharepointLink(sharepointpath_link,dmsPath){
         debugger;
         let fileName=null;
-        UpdateDMSId({ uploadeFilePath: sharepointpath_link, uploadedrecId: this.docmetaid, filename: fileName, uploadedTaskId: this.documentUploadtaskid })
+        UpdateDMSId({ uploadeFilePath: sharepointpath_link, uploadedrecId: this.docmetaid, filename: fileName, uploadedTaskId: this.documentUploadtaskid ,dmspath:dmsPath})
         .then(res => {
             if (res != null && res != undefined) {
                 this.sharepointurlLink='';
@@ -1229,9 +1229,9 @@ export default class Lwc_Handledocuments extends NavigationMixin(LightningElemen
     }
     */
 
-    storeDocumentInSfsystem(fileData) {
+    storeDocumentInSfsystem(fileData,dmsPath) {
         debugger;
-        uploadFile({ base64: fileData.base64, filename: fileData.filename, recordId: this.docmetaid, uploadedTaskId: this.documentUploadtaskid })
+        uploadFile({ base64: fileData.base64, filename: fileData.filename, recordId: this.docmetaid, uploadedTaskId: this.documentUploadtaskid,dmspath:dmsPath })
             .then(result => {
                 if (result != null && result != undefined) {
                     //let Array_contentIdRelatedToDocument = this.contentIdRelatedToDocument;

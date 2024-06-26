@@ -113,11 +113,6 @@
                      </tbody>
                   </table>
                </div>
-			   <!-- <div slot="footer" class="slds-align_absolute-center slds-p-bottom_small">
-                     <lightning-button class="slds-m-top_small" label="Submit" variant="brand"
-                        onclick={submitForPayeeDetails} disabled={isDisabledSubmitButton}>
-                     </lightning-button>
-                </div> -->
             </template>
          </div>
       </div>
@@ -133,11 +128,6 @@
          </div>
          <div class="slds-col slds-size_12-of-12">
             <template if:true={isShowPayeeACdetailComp}>
-               <!-- <div class="slds-float_right slds-m-vertical_x-small">
-                  <lightning-button class="slds-m-around_medium" label="New Bank Details" variant="brand"
-                     onclick={AddNewPayeeRowAcDet} disabled={disabledAddRow}>
-                  </lightning-button>
-               </div> -->
                <div class="slds-m-around_medium">
                   <div class="table-container slds-scrollable slds-m-around_medium fixTableHead">
                      <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered slds-table_striped slds-max-medium-table_stacked-horizontal"
@@ -145,10 +135,10 @@
                         <thead>
                            <tr class="slds-line-height_reset">
                               <th class="" scope="col"  style="min-width: 10rem;">
-                                 <div class="" title="Payee Name">Payee Name</div>
+                                 <div class="" title="Entity Name">Entity Name</div>
                               </th>
-                              <th class="" scope="col">
-                                 <div class="" title="Bank Account Holder's Name">Bank Account Holder's Name</div>
+                              <th class="" scope="col" style="min-width: 15rem;">
+                                 <div class="" title="Payee Name">Payee Name</div>
                               </th>
                               <th class="" scope="col">
                                  <div class="" title="Bank Account Number">
@@ -216,11 +206,11 @@
                                        </lightning-combobox>
                                     </template>
                                  </th>
-                                 <td data-label="bankAccountName" scope="row" >
+                                 <td data-label="bankAccountName" scope="row" style="min-width: 15rem;">
                                     <lightning-input type="text" variant="label-hidden" name="bankAccountName"
                                        id="bankAccountName" data-index={payeeacd.index}
                                        disabled={payeeacd.isDisabledBankAccountHolderName} value={payeeacd.bankAccountName}
-                                       placeholder="Bank Account Holder's Name" onchange={handleInputChangeACdetails}>
+                                       placeholder="Payee Name" onchange={handleInputChangeACdetails}>
                                     </lightning-input>
                                  </td>
                                  <td data-label="Bank Number" scope="row">
@@ -261,13 +251,6 @@
                                        onchange={handleInputChangeACdetails}>
                                     </lightning-input>
                                  </td>
-                                 <!-- <th data-label="Bank Number" scope="row">
-                                    <lightning-input type="text"  variant="label-hidden" id="banknumber"
-                                    	required disabled={payeeacd.isEditableDisabled} value={payeeacd.bankNumber}
-                                    	data-index={payeeacd.index} placeholder="Bank Account Number"
-                                    	onchange={handleInputChangeACdetails} name="bankNumber">
-                                    </lightning-input>
-                                    </th> -->
                                  <td data-label="Verification Type" scope="row">
                                     <lightning-combobox data-index={payeeacd.index} data-id={payeeacd.id}
                                        name="verificationType" variant="label-hidden" label="Status"
@@ -280,7 +263,7 @@
                                     <lightning-input type="text" variant="label-hidden" id="Verification_Status__c"
                                        disabled value={payeeacd.Verification_Status__c} data-index={payeeacd.index}
                                        placeholder="Status" onchange={handleInputChangeACdetails}
-                                       name="bankNumber">
+                                       name="Verification_Status__c">
                                     </lightning-input>
                                  </th>
                                  <template if:true={payeeacd.isShowCheckBoxs}>
@@ -288,6 +271,16 @@
                                        <th data-label="Verify Physically" scope="row">
                                           <lightning-input type="checkbox" variant="label-hidden"
                                              id="Verify_Physically"
+                                             checked={payeeacd.isDisabledisPhysicallyVerificationRequired}
+                                             disabled={payeeacd.isPhysicallyVerificationRequiredDisabled}
+                                             value={payeeacd.isDisabledisPhysicallyVerificationRequired}
+                                             data-index={payeeacd.index} placeholder="Status" data-id={payeeacd.id}
+                                             onchange={handleInputChangeACdetails} name="isVerifiedPhysically">
+                                          </lightning-input>
+
+                                          <lightning-input type="checkbox" variant="label-hidden"
+                                             id="Verify_Physicallhy"
+                                             checked={payeeacd.isPhysicallyVerificationRequiredDisabled}
                                              disabled={payeeacd.isDisabledisPhysicallyVerificationRequired}
                                              value={payeeacd.isPhysicallyVerificationRequiredDisabled}
                                              data-index={payeeacd.index} placeholder="Status" data-id={payeeacd.id}
@@ -335,8 +328,7 @@
                                        data-index={payeeacd.index} data-id={payeeacd.id} title="Delete"
                                        class="slds-m-horizontal_xx-small" onclick={handleDeleteActionACDetailsRow}>
                                     </lightning-button-icon>
-                                    <!-- disabled={payeeacd.isDisabledVerifyButton} -->
-                                    <!-- <lightning-icon icon-name='action:update' alternative-text='update' size='large' title='update'></lightning-icon> -->
+                                    
                                     <template if:true={payeeacd.isSendableForPennyDropVerification}>
                                        <lightning-button-icon icon-name="utility:check"
                                           disabled={payeeacd.isDisabledPennyDropButton}
@@ -354,9 +346,7 @@
                                           data-index={payeeacd.index} onclick={approrovedSelectedBankDetails}
                                           class="slds-m-horizontal_xx-small" variant="brand">
                                        </lightning-button-icon>
-                                    </template>
-                                    <!-- <lightning-icon icon-name='utility:check' alternative-text='check' variant='success' size='large' title='check'></lightning-icon> -->
-                                    
+                                    </template>                                    
                                  </td>
                                  <td>
                                     <template if:true={payeeacd.isShowPhycalyVerifyButton}>
@@ -368,25 +358,12 @@
                                        </lightning-button-icon>
                                     </template>
                                  </td>
-                                 <!-- <td>
-                                    <template if:true={payeeacd.Physically_verified__c}>
-                                       <lightning-button-icon icon-name='utility:attach'
-                                          alternative-text='physically verify' size='medium'
-                                          title='show uploaded bank details' variant='brand'
-                                          data-id={payeeacd.id} class="slds-m-horizontal_xx-small"
-                                          onclick={physicallyViewBabkDetails} data-index={payeeacd.index}>
-                                       </lightning-button-icon>
-                                    </template>
-                                 </td> -->
                               </tr>
                            </template>
                         </tbody>
                      </table>
                   </div>
                   <div slot="footer" class="slds-align_absolute-center slds-p-bottom_small">
-                     <!-- <lightning-button class="slds-m-top_small" label="Submit" variant="brand"
-                        onclick={submitForBankDetails}>
-                     </lightning-button> -->
                   </div>
                </div>
             </template>
@@ -477,9 +454,6 @@
                   </div>
                </div>
                <footer class="slds-modal__footer">
-                  <!-- <button class="slds-button slds-button_neutral" onclick={updateBankDetailsManually} title="Enter Manually">
-                  Enter Manually
-                  </button> -->
                   <button class="slds-button slds-button_brand" onclick={populateBankDetails} title="Confirm">
                   Confirm
                   </button>
